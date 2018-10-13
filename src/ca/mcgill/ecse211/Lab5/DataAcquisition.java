@@ -18,7 +18,7 @@ import lejos.utility.TimerListener;
  * and printed the sensor values
  *  We copied them and used that to find our
  * threshold for detecting black line
- * @author Group 20
+ * @author Group 21
  *
  */
 public class DataAcquisition implements TimerListener {
@@ -33,27 +33,29 @@ public class DataAcquisition implements TimerListener {
 	public static int currentSample;
 	// Set up instances of the Text Display, left and right Motors
 	static TextLCD t = LocalEV3.get().getTextLCD();
-	static RegulatedMotor leftMotor = Motor.A;
-	static RegulatedMotor rightMotor = Motor.B;
+	
 	// Allocate ports for the Color and Touch sensors.
 
-	static Port portColor = LocalEV3.get().getPort("S4");
+	static Port portColor = LocalEV3.get().getPort("S1");
 
 	// Attach instances of Color and Touch sensors to specified ports.
-
-	static SensorModes myColor = new EV3ColorSensor(portColor);
-
+	///bdeubiajdondcw 
+	static EV3ColorSensor colorSensor = new EV3ColorSensor(portColor);
 	// Get an instance of a sample provider for each sensor. Operating
-	// modes are specified in the constructor. Note that the color
-	// sensor is set to return the intensity of the reflected light.
-
-	static SampleProvider myColorSample = myColor.getMode("Red");
-
-	// Need to allocate buffers for each sensor
-	static float[] sampleColor = new float[myColor.sampleSize()];
-
+		// modes are specified in the constructor. Note that the color
+		// sensor is set to return the intensity of the reflected light.
+//		colorSensor.setFloodlight(lejos.robotics.Color.WHITE);
+		
+//		static SampleProvider myColorSample = myColor.getRGBMode();
+	//	
+//		// Need to allocate buffers for each sensor
+	static float[]sampleColor;
+	static SampleProvider colorValue;
 	// Entry point
 	public static void main(String[] args) throws InterruptedException {
+		colorSensor.setFloodlight(lejos.robotics.Color.WHITE);
+		colorValue = colorSensor.getMode("RGB"); 
+		sampleColor = new float[colorValue.sampleSize()];
 		boolean rolling = true; // cart moves while true
 		int status;
 		numSamples = 0;
@@ -69,20 +71,17 @@ public class DataAcquisition implements TimerListener {
 		Timer myTimer = new Timer(SINTERVAL, new DataAcquisition());
 
 		// Start cart rolling...
-		leftMotor.setSpeed(FWDSPEED);
-		rightMotor.setSpeed(FWDSPEED);
-		leftMotor.backward();
-		rightMotor.forward();
+		
+
 		// Enable exception handler
 		myTimer.start();
 		// The Main thread continually updates the display
 		// and checks for stop
-		while (rolling) {
-			status = Button.readButtons();
-			if ((status == Button.ID_ENTER) || (numSamples >= NSAMPLES)) {
+		while (true) {
+			
+			if ( (numSamples >= NSAMPLES)) {
 				System.exit(0);
-				leftMotor.stop();
-				rightMotor.stop();
+				
 			}
 			t.drawInt(numSamples, 4, 11, 4); // show current count
 			t.drawInt(currentSample, 4, 11, 5); // and current value read
@@ -93,8 +92,8 @@ public class DataAcquisition implements TimerListener {
 	@Override
 	public void timedOut() {
 		// Acquire sample and write immediately to remote console.
-		myColorSample.fetchSample(sampleColor, 0);
+		colorValue.fetchSample(sampleColor, 0);
 		numSamples++;
-		System.out.println(numSamples + ", " + sampleColor[0] * 1000);
+		System.out.println(numSamples + ", " + sampleColor[0] * 1000 + ", " + sampleColor[1] * 1000 +", " + sampleColor[2] * 1000 );
 	}
 }
