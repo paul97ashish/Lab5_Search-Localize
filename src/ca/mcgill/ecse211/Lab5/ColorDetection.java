@@ -32,13 +32,13 @@ private static final float[] [] Meann= {{0.170390332f,0.767597595f,0.617868163f}
 										{0.402231815f,0.906190081f,0.13049561f},
 										{0.832694447f,0.538629888f,0.128443766f},
 										{ 0.953786617f,0.290982684f,0.074967764f}};
-private static final float[] [] StdDevn= {{0.573214593f,0.606117356f,	0.551404371f},
-											{0.584991691f,0.583430374f,0.563377067f},
-											{0.584095753f,0.585842632f,0.561801176f},
-											{ 0.58910641f,0.579596568f,0.563046585f}};
+//private static final float[] [] StdDevn= {{0.573214593f,0.606117356f,	0.551404371f},
+//											{0.584991691f,0.583430374f,0.563377067f},
+//											{0.584095753f,0.585842632f,0.561801176f},
+//											{ 0.58910641f,0.579596568f,0.563046585f}};
 
 	public static void main (String [] args) {
-		colorSensor.setFloodlight(lejos.robotics.Color.WHITE);
+		//colorSensor.setFloodlight(lejos.robotics.Color.WHITE);
 		colorValue = colorSensor.getMode("RGB"); 
 		sampleColor = new float[colorValue.sampleSize()];
 		while(true) {
@@ -56,14 +56,15 @@ private static final float[] [] StdDevn= {{0.573214593f,0.606117356f,	0.55140437
 		return sampleColor;
 	}
 	public static int findMatch(float array[]) {
+		System.out.println(array[0]+ "    "+array[1]+ "    "+array[2]+ "    ");
 		float euc=(float)Math.sqrt((Math.pow(array[0], 2)+Math.pow(array[1], 2)+Math.pow(array[2], 2)));
 		float R=array[0]/euc;
 		float G=array[1]/euc;
 		float B=array[2]/euc;
 		for (int i=0; i<4; i++) {
-			float differenceR=Math.abs(R-Meann[i][0])/StdDevn[i][0];
-			float differenceG=Math.abs(G-Meann[i][1])/StdDevn[i][1];
-			float differenceB=Math.abs(B-Meann[i][2])/StdDevn[i][2];
+			float differenceR=Math.abs(R-Meann[i][0])/0.1f;
+			float differenceG=Math.abs(G-Meann[i][1])/0.1f;
+			float differenceB=Math.abs(B-Meann[i][2])/0.1f;
 			if (differenceR<1.0  &&differenceG<1.0 && differenceB<1.0) {
 				return i;
 			}
