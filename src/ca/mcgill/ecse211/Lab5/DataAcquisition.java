@@ -18,7 +18,7 @@ import lejos.utility.TimerListener;
  * and printed the sensor values
  *  We copied them and used that to find our
  * threshold for detecting black line
- * @author Group 21
+ * @author Group 20
  *
  */
 public class DataAcquisition implements TimerListener {
