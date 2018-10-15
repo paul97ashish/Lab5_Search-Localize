@@ -63,6 +63,16 @@ public class Lab5 {
 		LightLocalizer light=new LightLocalizer(leftMotor, rightMotor, odometer, WHEEL_RAD, TRACK);
 		light.Localize();
 		odometer.setXYT(COORDONATES[SC][0], COORDONATES[SC][1], COORDONATES[SC][2]);
+		Navigation nav=new Navigation(TILE_SIZE, leftMotor,rightMotor,TRACK, WHEEL_RAD);
+		// got to the lower left corner
+		nav.TravelTo(SEARCH_AREA[1][0]*TILE_SIZE, SEARCH_AREA[1][1]*TILE_SIZE);
+		// travelling to every point in the search area looking the ring
+		for (int i=SEARCH_AREA[1][0];i<=SEARCH_AREA[0][0];i++) {
+			
+			for (int j=SEARCH_AREA[1][1]; j<=SEARCH_AREA[0][1]; j++) {
+				nav.TravelTo(i*TILE_SIZE, j*TILE_SIZE);
+			}
+		}
 		
 		while (Button.waitForAnyPress() != Button.ID_ESCAPE);
 		System.exit(0);

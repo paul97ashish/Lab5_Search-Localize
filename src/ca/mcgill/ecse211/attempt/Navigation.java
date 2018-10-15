@@ -83,7 +83,7 @@ public class Navigation {
 	 * @throws InterruptedException
 	 * @return void
 	 */
-	public static void TravelTo(double x, double y) throws OdometerExceptions, InterruptedException {
+	public void TravelTo(double x, double y) throws OdometerExceptions, InterruptedException {
 		theta = 0.0;
 		// getting our current position
 		odo = Lab5.odometer;
