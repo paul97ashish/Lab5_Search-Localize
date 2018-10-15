@@ -104,7 +104,7 @@ public class UltrasonicLocalizer {
 		// calculate the change in theta by which the robot should rotate in order to
 		// be facing 0deg
 		if (alpha < beta) {
-			dtheta =35-avr;
+			dtheta =45-avr;
 		} else {
 			dtheta = 225 - avr;
 		}
@@ -116,69 +116,7 @@ public class UltrasonicLocalizer {
 		rightMotor.rotate(-convertAngle(WHEEL_RAD, TRACK, dtheta), false);
 
 	}
-	/**
-	 * This is our RisingEdge method It is used to perform the rising edge localization
-	 */
-	public void RisingEdge() {
-		int distance = 255;
-		double alpha, beta;
-		
-		leftMotor.forward();
-		rightMotor.backward();
-		// to make sure that the robot is facing the wall
-		// we turn right until it sees the wall
-		while (distance>dist) {
-			distance=fetch();
-		}
-		
-		// turn right until the robot detect a rising edge
-		while (distance < dist) {
-			distance = fetch();
-
-		}
-		// record the angle and switch directions
-		Sound.beep();
-		alpha = odo.getXYT()[2];
-		System.out.println(alpha);
-		rightMotor.forward();
-		leftMotor.backward();
-		// making sure the robot doesn't detect the same falling edge
-		try {
-			Thread.sleep(2000);
-		} catch (Exception e) {
-		}
-		// turn left until the robot detect a rising edge again
-		distance = 0;
-		while (distance < dist) {
-			distance = fetch();
-
-		}
-		// record the second angle
-		Sound.beep();
-		beta = odo.getXYT()[2];
-
-		leftMotor.stop(true);
-		rightMotor.stop();
-		// compute the average of the two angles detected
-		System.out.println(beta);
-		double avr = ((alpha + beta) / 2.0);
-		System.out.println(avr);
-		// calculate the change in theta by which the robot should rotate in order to
-		// be facing 0deg
-		double dtheta = 0;
-		if (alpha > beta) {
-			dtheta = 225 - avr;
-		} else {
-			dtheta = 180 - avr;
-		}
-
-		dtheta += odo.getXYT()[2];
-		System.out.println(dtheta);
-		// rotate by the calculated amount
-		leftMotor.rotate(convertAngle(WHEEL_RAD, TRACK, dtheta), true);
-		rightMotor.rotate(-convertAngle(WHEEL_RAD, TRACK, dtheta), false);
-
-	}
+	
 
 	/**
 	 * This method is used to get the distance from the ultrasonic sensor

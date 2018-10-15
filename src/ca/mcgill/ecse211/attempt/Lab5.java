@@ -23,6 +23,7 @@ public class Lab5 {
 	public static final double TRACK = 15.6;
 	public static final int [][]SEARCH_AREA= {{7,7},{3,3}};
 	public static final int SC=2;
+	public static final int TR=2;
 	public static final double TILE_SIZE=30.48;
 	public static final double[][] COORDONATES= {{0,0,0},{6*TILE_SIZE, 0, 270}, {6*TILE_SIZE, 6*TILE_SIZE, 180},{0, 6*TILE_SIZE, 90}};
 	public static Odometer odometer;
@@ -55,25 +56,29 @@ public class Lab5 {
 		// create an Ultrasonic Localizer
 		UltrasonicLocalizer ultra=new UltrasonicLocalizer(leftMotor, rightMotor, odometer, WHEEL_RAD, TRACK);
 		lcd.clear();
+		
 		//Run falling edge localization
 		ultra.FallingEdge();
-		
+		ultra=null;
 		odometer.setTheta(0);
 		// start light localization
 		LightLocalizer light=new LightLocalizer(leftMotor, rightMotor, odometer, WHEEL_RAD, TRACK);
 		light.Localize();
+		light=null;
 		odometer.setXYT(COORDONATES[SC][0], COORDONATES[SC][1], COORDONATES[SC][2]);
-		Navigation nav=new Navigation(TILE_SIZE, leftMotor,rightMotor,TRACK, WHEEL_RAD);
+		Navigation nav=new Navigation(TILE_SIZE, leftMotor,rightMotor,TRACK, WHEEL_RAD, TR);
 		// got to the lower left corner
-		nav.TravelTo(SEARCH_AREA[1][0]*TILE_SIZE, SEARCH_AREA[1][1]*TILE_SIZE);
+		nav.TravelTo(SEARCH_AREA[1][0]*TILE_SIZE, SEARCH_AREA[1][1]*TILE_SIZE, false);
 		// travelling to every point in the search area looking the ring
+		
 		for (int i=SEARCH_AREA[1][0];i<=SEARCH_AREA[0][0];i++) {
 			
 			for (int j=SEARCH_AREA[1][1]; j<=SEARCH_AREA[0][1]; j++) {
-				nav.TravelTo(i*TILE_SIZE, j*TILE_SIZE);
+				if(nav.TravelTo(i*TILE_SIZE, j*TILE_SIZE, true)) break;
 			}
 		}
-		
+		// go to the upper left corner
+		nav.TravelTo(SEARCH_AREA[0][0]*TILE_SIZE, SEARCH_AREA[0][1]*TILE_SIZE, false);
 		while (Button.waitForAnyPress() != Button.ID_ESCAPE);
 		System.exit(0);
 	}

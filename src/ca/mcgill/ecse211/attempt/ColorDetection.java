@@ -7,7 +7,7 @@ import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.robotics.SampleProvider;
 
 public class ColorDetection {
-	static Port portColor = LocalEV3.get().getPort("S1");
+	static Port portColor = LocalEV3.get().getPort("S2");
 	static EV3ColorSensor colorSensor = new EV3ColorSensor(portColor);
 	static float[]sampleColor;
 	static SampleProvider colorValue;
@@ -37,19 +37,29 @@ private static final float[] [] Meann= {{0.170390332f,0.767597595f,0.617868163f}
 //											{0.584095753f,0.585842632f,0.561801176f},
 //											{ 0.58910641f,0.579596568f,0.563046585f}};
 
-	public static void main (String [] args) {
-		//colorSensor.setFloodlight(lejos.robotics.Color.WHITE);
-		colorValue = colorSensor.getMode("RGB"); 
-		sampleColor = new float[colorValue.sampleSize()];
-		while(true) {
-		Button.waitForAnyPress();
-		int status;
-		
+//	public static void main (String [] args) {
+//		//colorSensor.setFloodlight(lejos.robotics.Color.WHITE);
+//		colorValue = colorSensor.getMode("RGB"); 
+//		sampleColor = new float[colorValue.sampleSize()];
+//		while(true) {
+//		Button.waitForAnyPress();
+//		int status;
+//		
+//		do {
+//			status=findMatch( fetch());
+//		}while(status==5);
+//		System.out.println(status);
+//		}
+//	}
+
+	
+	public int detect() {
+		int color;
 		do {
-			status=findMatch( fetch());
-		}while(status==5);
-		System.out.println(status);
-		}
+			color=findMatch(fetch());
+			
+		}while(color==5);
+		return color;
 	}
 	public static float[] fetch() {
 		colorValue.fetchSample(sampleColor, 0);

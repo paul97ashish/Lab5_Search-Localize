@@ -1,6 +1,7 @@
 package ca.mcgill.ecse211.attempt;
 
 import ca.mcgill.ecse211.odometer.*;
+import lejos.hardware.Sound;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.motor.EV3MediumRegulatedMotor;
@@ -42,20 +43,17 @@ public class Navigation {
 	private static final int ROTATE_SPEED = 75;
 	
 	
-	// initializing the 4 possible maps
-	private static final int[][] Map1 = new int[][] { { 0, 2 }, { 1, 1 }, { 2, 2 }, { 2, 1 }, { 1, 0 } };
-	private static final int[][] Map2 = new int[][] { { 1, 1 }, { 0, 2 }, { 2, 2 }, { 2, 1 }, { 1, 0 } };
-	private static final int[][] Map3 = new int[][] { { 1, 0 }, { 2, 1 }, { 2, 2 }, { 0, 2 }, { 1, 1 } };
-	private static final int[][] Map4 = new int[][] { { 0, 1 }, { 1, 2 }, { 1, 0 }, { 2, 1 }, { 2, 2 } };
-	private static final int[][][] MAPS= {Map1, Map2, Map3, Map4};
 	// initializing variable used in our methods
 	private static int distance;
-	private static final int safeDistance=7;
-	public double Tile_Size;
+	private static final int safeDistance=5;
+	public static double Tile_Size;
 	private static double theta;
-	private static int map_num;
+
 	private static double TRACK;
 	private static double WHEEL_RAD;
+	private static ColorDetection detector=new ColorDetection();
+	private static boolean find=false;
+	private static int Target;
 	/**
 	 * This is the class constructor
 	 * @param Tile_Size
@@ -63,15 +61,15 @@ public class Navigation {
 	 * @param rightMotor1
 	 * @param num: map index depending on user input
 	 */
-	public Navigation(double Tile_Size, EV3LargeRegulatedMotor leftMotor1, EV3LargeRegulatedMotor rightMotor1, double track, double wr) {
-		this.Tile_Size = Tile_Size;
+	public Navigation(double Tile_Size1, EV3LargeRegulatedMotor leftMotor1, EV3LargeRegulatedMotor rightMotor1, double track, double wr, int TR) {
+		Tile_Size = Tile_Size1;
 		rightMotor = rightMotor1;
 		leftMotor = leftMotor1;
 		rightMotor.stop();
 		leftMotor.stop();
 		TRACK=track;
 		WHEEL_RAD=wr;
-		
+		Target=TR;
 
 	}
 	
@@ -83,7 +81,8 @@ public class Navigation {
 	 * @throws InterruptedException
 	 * @return void
 	 */
-	public void TravelTo(double x, double y) throws OdometerExceptions, InterruptedException {
+	public boolean TravelTo(double x, double y, boolean search) throws OdometerExceptions, InterruptedException {
+		find=search;
 		theta = 0.0;
 		// getting our current position
 		odo = Lab5.odometer;
@@ -134,7 +133,20 @@ public class Navigation {
 				usSensor.fetchSample(usData, 0); 
 				distance = (int) (usData[0] * 100.0); 
 				// if detect Obstacle, call the Avoid and break from this loop to go back the outter loop
+				// If we're looking for a ring, check if its the correct ring
 				if (distance < safeDistance) {
+					if(find) {
+						int color=detector.detect()+1;
+						// if we found the ring, we beep and return true
+						if (color==Target) {
+							Sound.beep();
+							Avoid();
+							return true;
+						}else {
+							Sound.beep();
+							Sound.beep();
+						}
+					}
 					Avoid();
 					break;
 				}
@@ -148,7 +160,8 @@ public class Navigation {
 		}
 		// arrived to its destination
 		travellingStatus = false;
-		
+		// didn't detect
+		return false;
 
 	}
 	/**
@@ -225,21 +238,14 @@ public class Navigation {
 		leftMotor.rotate(convertAngle(WHEEL_RAD, TRACK, 90), true);
 		rightMotor.rotate(-convertAngle(WHEEL_RAD, TRACK, 90), false);
 		
-		// make the robot move forward until the sensor can't see the obstacle anymore
-		int currentDistance = 0;
+		// make the robot move forward by 15cm
+	
 		leftMotor.setSpeed(FWDSPEED);
 		rightMotor.setSpeed(FWDSPEED);
-		while (currentDistance < 30) {
-
-			leftMotor.forward();
-			rightMotor.forward();
-			usSensor.fetchSample(usData, 0); // acquire data
-			currentDistance = (int) (usData[0] * 100.0);
-		}
-		// since the sensor is mounted in beginning of the robot
-		// we make sure that the entire robot moved passed the obstacle
+		
 		leftMotor.rotate(convertDistance(WHEEL_RAD, 15), true);
 		rightMotor.rotate(convertDistance(WHEEL_RAD, 15), false);
+		
 		// rotate the robot back to its initial direction
 		// move forward until it doesn't see the other side of the obstacle
 		leftMotor.setSpeed(ROTATE_SPEED);
@@ -250,15 +256,7 @@ public class Navigation {
 		rightMotor.setSpeed(FWDSPEED);
 		leftMotor.rotate(convertDistance(WHEEL_RAD, 15), true);
 		rightMotor.rotate(convertDistance(WHEEL_RAD, 15), false);
-		do {
-			leftMotor.forward();
-			rightMotor.forward();
-			usSensor.fetchSample(usData, 0); // acquire data
-			currentDistance = (int) (usData[0] * 100.0);
-		} while (currentDistance < 30);
-		// making sure that the entire robot avoided the obstacle
-		leftMotor.rotate(convertDistance(WHEEL_RAD, 10), true);
-		rightMotor.rotate(convertDistance(WHEEL_RAD, 10), false);
+		
 		
 	}
 
