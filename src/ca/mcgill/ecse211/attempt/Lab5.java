@@ -23,7 +23,7 @@ public class Lab5 {
 	public static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
 	private static final TextLCD lcd = LocalEV3.get().getTextLCD();
 	public static final double WHEEL_RAD = 2.2;
-	public static final double TRACK = 15.6;
+	public static final double TRACK = 15.9;
 	public static final int[][] SEARCH_AREA = { { 6, 6 }, { 2, 2 } };
 	public static final int SC = 0;
 	public static final int TR = 3;
@@ -77,18 +77,21 @@ public class Lab5 {
 		nav.TravelTo(SEARCH_AREA[1][0] * TILE_SIZE, SEARCH_AREA[1][1] * TILE_SIZE, false);
 		// travelling to every point in the search area looking the ring
 		boolean first = true;
+		int j=SEARCH_AREA[1][1];
 		for (int i = SEARCH_AREA[1][0]; i <= SEARCH_AREA[0][0]; i++) {
-			if (nav.TravelTo(i * TILE_SIZE, SEARCH_AREA[0][1] * TILE_SIZE, true))
+			if (nav.TravelTo(i * TILE_SIZE, j * TILE_SIZE, true))
 				break;
 			
 			if (first) {
 				if (nav.TravelTo(i * TILE_SIZE, SEARCH_AREA[0][1] * TILE_SIZE, true))
 					break;
 				first = false;
+				j=SEARCH_AREA[0][1];
 			} else {
 				if (nav.TravelTo(i * TILE_SIZE, SEARCH_AREA[1][1] * TILE_SIZE, true))
 					break;
 				first = true;
+				j=SEARCH_AREA[1][1];
 			}
 		}
 		// go to the upper left corner

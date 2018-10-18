@@ -156,6 +156,7 @@ public class LightLocalizer {
 	 * @throws InterruptedException
 	 */
 	private int fetch() throws InterruptedException {
+		Thread.sleep(75);
 		int sensor_data;
 		myColorSample.fetchSample(sampleColor, 0);
 		sensor_data=(int) (sampleColor[0] * 1000);

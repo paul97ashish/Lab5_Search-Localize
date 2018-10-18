@@ -74,6 +74,8 @@ public class Navigation {
 		 usDistance = usSensor.getMode("Distance"); // usDistance provides samples from
 			// this instance
 		 usData = new float[usDistance.sampleSize()];
+		 rightMotor.setAcceleration(500);
+		 leftMotor.setAcceleration(500);
 
 	}
 	
@@ -139,6 +141,8 @@ public class Navigation {
 				// if detect Obstacle, call the Avoid and break from this loop to go back the outter loop
 				// If we're looking for a ring, check if its the correct ring
 				if (distance < safeDistance) {
+					leftMotor.stop();
+					rightMotor.stop();
 					if(find) {
 						int color=detector.detect()+1;
 						// if we found the ring, we beep and return true
@@ -237,6 +241,12 @@ public class Navigation {
 	 */
 	public static void Avoid() {
 		//make the robot turn 90 degrees to the right
+		leftMotor.setSpeed(FWDSPEED);
+		rightMotor.setSpeed(FWDSPEED);
+		
+		leftMotor.rotate(-convertDistance(WHEEL_RAD, 10), true);
+		rightMotor.rotate(-convertDistance(WHEEL_RAD, 10), false);
+		
 		leftMotor.setSpeed(ROTATE_SPEED);
 		rightMotor.setSpeed(ROTATE_SPEED);
 		leftMotor.rotate(convertAngle(WHEEL_RAD, TRACK, 90), true);
@@ -247,8 +257,8 @@ public class Navigation {
 		leftMotor.setSpeed(FWDSPEED);
 		rightMotor.setSpeed(FWDSPEED);
 		
-		leftMotor.rotate(convertDistance(WHEEL_RAD, 15), true);
-		rightMotor.rotate(convertDistance(WHEEL_RAD, 15), false);
+		leftMotor.rotate(convertDistance(WHEEL_RAD, 20), true);
+		rightMotor.rotate(convertDistance(WHEEL_RAD, 20), false);
 		
 		// rotate the robot back to its initial direction
 		// move forward until it doesn't see the other side of the obstacle
@@ -258,8 +268,8 @@ public class Navigation {
 		rightMotor.rotate(-convertAngle(WHEEL_RAD, TRACK, -90), false);
 		leftMotor.setSpeed(FWDSPEED);
 		rightMotor.setSpeed(FWDSPEED);
-		leftMotor.rotate(convertDistance(WHEEL_RAD, 15), true);
-		rightMotor.rotate(convertDistance(WHEEL_RAD, 15), false);
+		leftMotor.rotate(convertDistance(WHEEL_RAD, 25), true);
+		rightMotor.rotate(convertDistance(WHEEL_RAD, 25), false);
 		
 		
 	}
