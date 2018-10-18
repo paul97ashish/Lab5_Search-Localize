@@ -22,11 +22,11 @@ public class Navigation {
 
 	
 	// creating the sensor
-	private static final Port usPort = LocalEV3.get().getPort("S1");
-	private static SensorModes usSensor = new EV3UltrasonicSensor(usPort); // usSensor is the instance
-	private static SampleProvider usDistance = usSensor.getMode("Distance"); // usDistance provides samples from
+//	private static final Port usPort = LocalEV3.get().getPort("S4");
+	private static SensorModes usSensor ; // usSensor is the instance
+	private static SampleProvider usDistance ; // usDistance provides samples from
 	// this instance
-	private static float[] usData = new float[usDistance.sampleSize()];
+	private static float[] usData ;
 	
 	// instance of odometer
 	private static Odometer odo;
@@ -61,7 +61,7 @@ public class Navigation {
 	 * @param rightMotor1
 	 * @param num: map index depending on user input
 	 */
-	public Navigation(double Tile_Size1, EV3LargeRegulatedMotor leftMotor1, EV3LargeRegulatedMotor rightMotor1, double track, double wr, int TR) {
+	public Navigation(double Tile_Size1, EV3LargeRegulatedMotor leftMotor1, EV3LargeRegulatedMotor rightMotor1, double track, double wr, int TR, SensorModes sensor) {
 		Tile_Size = Tile_Size1;
 		rightMotor = rightMotor1;
 		leftMotor = leftMotor1;
@@ -70,6 +70,10 @@ public class Navigation {
 		TRACK=track;
 		WHEEL_RAD=wr;
 		Target=TR;
+		usSensor=sensor;
+		 usDistance = usSensor.getMode("Distance"); // usDistance provides samples from
+			// this instance
+		 usData = new float[usDistance.sampleSize()];
 
 	}
 	

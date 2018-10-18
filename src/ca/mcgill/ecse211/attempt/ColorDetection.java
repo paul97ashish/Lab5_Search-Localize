@@ -7,7 +7,7 @@ import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.robotics.SampleProvider;
 
 public class ColorDetection {
-	static Port portColor = LocalEV3.get().getPort("S2");
+	static Port portColor = LocalEV3.get().getPort("S1");
 	static EV3ColorSensor colorSensor = new EV3ColorSensor(portColor);
 	static float[]sampleColor;
 	static SampleProvider colorValue;
@@ -52,7 +52,12 @@ private static final float[] [] Meann= {{0.170390332f,0.767597595f,0.617868163f}
 //		}
 //	}
 
-	
+	public ColorDetection() {
+		colorSensor.setFloodlight(lejos.robotics.Color.WHITE);
+		colorValue = colorSensor.getMode("RGB"); 
+		sampleColor = new float[colorValue.sampleSize()];
+		
+	}
 	public int detect() {
 		int color;
 		do {

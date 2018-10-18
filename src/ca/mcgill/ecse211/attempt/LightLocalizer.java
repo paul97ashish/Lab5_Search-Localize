@@ -14,7 +14,7 @@ import lejos.robotics.SampleProvider;
  */
 public class LightLocalizer {
 	// Creating our light sensor and sample provider
-	static Port portColor = LocalEV3.get().getPort("S4");
+	static Port portColor = LocalEV3.get().getPort("S2");
 	static SensorModes myColor = new EV3ColorSensor(portColor);
 	static SampleProvider myColorSample = myColor.getMode("Red");
 	static float[] sampleColor = new float[myColor.sampleSize()];
@@ -26,9 +26,9 @@ public class LightLocalizer {
 	private static double WHEEL_RAD;
 	private static double TRACK;
 	private Odometer odo;
-	private static final int THRESHOLD=-40;	// minimum at which we assume that w black line in detected
+	private static final int THRESHOLD=300;	// minimum at which we assume that w black line in detected
 	private static final double sensor_dist=12.5; // distance between the light sensor and the wheels
-	private static int last;
+	
 	/**
 	 * This is the class constructor
 	 * @param leftMotor1
@@ -80,17 +80,17 @@ public class LightLocalizer {
 		
 		// keep sampling while the robot is moving 
 		// and record the values for the angles in corresponding slot in the array
-		last=fetch();
+		
 		while(leftMotor.isMoving() || rightMotor.isMoving()) {
 			
 			sensor_data=fetch();
-			if ((sensor_data-last)<THRESHOLD && counter<4) {
+			if ((sensor_data)<THRESHOLD && counter<4) {
 				Sound.beep();
 				angles[counter]=odo.getXYT()[2];
 				System.out.println(angles[counter]);
 				counter++;
 			}
-			last=sensor_data;
+			
 			
 		}
 		// compute x and y using the formula fromt he slide
@@ -124,8 +124,8 @@ public class LightLocalizer {
 		rightMotor.setSpeed(ROTATE_SPEED);
 		// make the robot turn back to 0 degrees 
 	
-		leftMotor.rotate(-convertAngle(WHEEL_RAD,TRACK, theta), true);
-		rightMotor.rotate(convertAngle(WHEEL_RAD, TRACK, theta), false);
+		leftMotor.rotate(-convertAngle(WHEEL_RAD,TRACK, theta-10), true);
+		rightMotor.rotate(convertAngle(WHEEL_RAD, TRACK, theta-10), false);
 		System.out.println("done");
 	}
 	
@@ -156,7 +156,6 @@ public class LightLocalizer {
 	 * @throws InterruptedException
 	 */
 	private int fetch() throws InterruptedException {
-		Thread.sleep(75);
 		int sensor_data;
 		myColorSample.fetchSample(sampleColor, 0);
 		sensor_data=(int) (sampleColor[0] * 1000);

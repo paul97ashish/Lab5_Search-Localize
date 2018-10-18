@@ -26,12 +26,11 @@ public class UltrasonicLocalizer {
 	private static final int SAMPLING_PERIOD = 100;
 	private static final int FILTER_OUT = 10;
 	// intiate the ultrasonic sensor and the sample provider
-	private static final Port usPort = LocalEV3.get().getPort("S1");
-	private static SensorModes usSensor = new EV3UltrasonicSensor(usPort); // usSensor is the instance
-	private static SampleProvider usDistance = usSensor.getMode("Distance"); // usDistance provides samples from
+	//private static final Port usPort = LocalEV3.get().getPort("S4");
+	private static SensorModes usSensor; // usSensor is the instance
+	private static SampleProvider usDistance ; // usDistance provides samples from
 	// this instance
-	private static float[] usData = new float[usDistance.sampleSize()];
-
+	private static float[] usData ;
 	/**
 	 * This our class constructor
 	 * 
@@ -42,7 +41,7 @@ public class UltrasonicLocalizer {
 	 * @param track
 	 */
 	public UltrasonicLocalizer(EV3LargeRegulatedMotor leftMotor1, EV3LargeRegulatedMotor rightMotor1, Odometer odom,
-			double rad, double track) {
+			double rad, double track, SensorModes sensor) {
 		leftMotor = leftMotor1;
 		rightMotor = rightMotor1;
 		odo = odom;
@@ -50,6 +49,10 @@ public class UltrasonicLocalizer {
 		rightMotor.setSpeed(ROTATE_SPEED);
 		WHEEL_RAD = rad;
 		TRACK = track;
+		usSensor=sensor;
+		 usDistance = usSensor.getMode("Distance"); // usDistance provides samples from
+			// this instance
+		 usData = new float[usDistance.sampleSize()];
 	}
 
 	/**
@@ -96,20 +99,17 @@ public class UltrasonicLocalizer {
 		leftMotor.stop(true);
 		rightMotor.stop();
 
-		System.out.println(beta);
 		// compute the average of the two angles detected
 		double avr = (alpha + beta) / 2.0;
-		System.out.println(avr);
 		double dtheta;
 		// calculate the change in theta by which the robot should rotate in order to
 		// be facing 0deg
 		if (alpha < beta) {
-			dtheta =45-avr;
+			dtheta =-avr-15;
 		} else {
 			dtheta = 225 - avr;
 		}
 
-		System.out.println(dtheta);
 		dtheta += odo.getXYT()[2];
 		// rotate by the calculated amount
 		leftMotor.rotate(convertAngle(WHEEL_RAD, TRACK, dtheta), true);
