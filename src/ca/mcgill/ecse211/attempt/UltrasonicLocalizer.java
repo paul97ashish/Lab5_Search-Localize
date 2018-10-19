@@ -19,7 +19,7 @@ public class UltrasonicLocalizer {
 	private static EV3LargeRegulatedMotor leftMotor;
 	private static EV3LargeRegulatedMotor rightMotor;
 	private static final int dist = 35;
-	private static final int ROTATE_SPEED = 100;
+	private static final int ROTATE_SPEED = 150;
 	private static double WHEEL_RAD;
 	private static double TRACK;
 	private Odometer odo;
@@ -77,7 +77,7 @@ public class UltrasonicLocalizer {
 		// record the angle and switch directions
 		Sound.beep();
 		alpha = odo.getXYT()[2];
-		System.out.println(alpha);
+		
 
 		rightMotor.forward();
 		leftMotor.backward();
@@ -105,7 +105,7 @@ public class UltrasonicLocalizer {
 		// calculate the change in theta by which the robot should rotate in order to
 		// be facing 0deg
 		if (alpha < beta) {
-			dtheta =-avr-15;
+			dtheta =-avr;
 		} else {
 			dtheta = 225 - avr;
 		}

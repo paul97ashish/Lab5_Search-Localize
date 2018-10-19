@@ -122,6 +122,10 @@ public class Navigation {
 				}
 			}
 			// turn to the angle calculated
+			rightMotor.setSpeed(1);
+			leftMotor.setSpeed(1);
+			rightMotor.stop();
+			leftMotor.stop();
 			turnTo(theta * 180 / Math.PI);
 			// move forward by the required distance
 			leftMotor.setSpeed(FWDSPEED);
@@ -136,12 +140,14 @@ public class Navigation {
 				currentX = odo.getXYT()[0];
 				currentY = odo.getXYT()[1];
 				// getting data from the sensor
-				usSensor.fetchSample(usData, 0); 
-				distance = (int) (usData[0] * 100.0); 
+				
+				distance = fetch(); 
 				// if detect Obstacle, call the Avoid and break from this loop to go back the outter loop
 				// If we're looking for a ring, check if its the correct ring
 				if (distance < safeDistance) {
-					leftMotor.stop();
+					
+					if (!(fetch()<safeDistance && fetch()<safeDistance))break;
+					leftMotor.stop(true);
 					rightMotor.stop();
 					if(find) {
 						int color=detector.detect()+1;
@@ -171,6 +177,10 @@ public class Navigation {
 		// didn't detect
 		return false;
 
+	}
+	public int fetch() {
+		usSensor.fetchSample(usData, 0); 
+		return (int) (usData[0] * 100.0); 
 	}
 	/**
 	 * This method make the robot turn the angle theta

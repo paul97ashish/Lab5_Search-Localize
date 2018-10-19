@@ -6,8 +6,10 @@ import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.TextLCD;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.port.Port;
+import lejos.hardware.sensor.EV3GyroSensor;
 import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.hardware.sensor.SensorModes;
+import lejos.robotics.SampleProvider;
 
 /**
  * This our main class. We use it to ask the user what kind of Localization he
@@ -28,18 +30,21 @@ public class Lab5 {
 	public static final int SC = 0;
 	public static final int TR = 3;
 	public static final double TILE_SIZE = 31.48;
-	public static final double[][] COORDONATES = { { TILE_SIZE, TILE_SIZE, 0 }, { 7 * TILE_SIZE, 0, 270 },
-			{ 7 * TILE_SIZE, 7 * TILE_SIZE, 180 }, { 0, 7 * TILE_SIZE, 90 } };
+	public static final double[][] COORDONATES = { { TILE_SIZE, TILE_SIZE, 0 }, { 7 * TILE_SIZE, TILE_SIZE, 270 },
+			{ 7 * TILE_SIZE, 7 * TILE_SIZE, 180 }, { TILE_SIZE, 7 * TILE_SIZE, 90 } };
 	public static Odometer odometer;
 	private static final Port usPort = LocalEV3.get().getPort("S4");
 	private static SensorModes usSensor = new EV3UltrasonicSensor(usPort); // usSensor is the instance
 
+	private static EV3GyroSensor gyro=new EV3GyroSensor(LocalEV3.get().getPort("S3"));
+	private static SampleProvider gyroAngle=gyro.getAngleMode();
+	private static float[]	Angle=new float[gyroAngle.sampleSize()];
 	public static void main(String[] args) throws OdometerExceptions, InterruptedException {
 
 		int buttonChoice;
 
 		// Odometer related objects
-		odometer = Odometer.getOdometer(leftMotor, rightMotor, TRACK, WHEEL_RAD); // TODO Complete implementation
+		odometer = Odometer.getOdometer(leftMotor, rightMotor, TRACK, WHEEL_RAD, gyroAngle); // TODO Complete implementation
 		// create the display
 
 		// ask the user to chose the localization type and wait for the input
@@ -67,15 +72,21 @@ public class Lab5 {
 		ultra.FallingEdge();
 		ultra = null;
 		odometer.setTheta(0);
+		gyro.reset();
+		odometer.Last=0.0;
 		// start light localization
 		LightLocalizer light = new LightLocalizer(leftMotor, rightMotor, odometer, WHEEL_RAD, TRACK);
 		light.Localize();
 		light = null;
 		odometer.setXYT(COORDONATES[SC][0], COORDONATES[SC][1], COORDONATES[SC][2]);
+		gyro.reset();
+		odometer.Last=0.0;
 		Navigation nav = new Navigation(TILE_SIZE, leftMotor, rightMotor, TRACK, WHEEL_RAD, TR, usSensor);
 		// got to the lower left corner
+		System.out.println(odometer.getXYT()[2]);
 		nav.TravelTo(SEARCH_AREA[1][0] * TILE_SIZE, SEARCH_AREA[1][1] * TILE_SIZE, false);
 		// travelling to every point in the search area looking the ring
+		System.out.println(odometer.getXYT()[2]);
 		boolean first = true;
 		int j=SEARCH_AREA[1][1];
 		for (int i = SEARCH_AREA[1][0]; i <= SEARCH_AREA[0][0]; i++) {

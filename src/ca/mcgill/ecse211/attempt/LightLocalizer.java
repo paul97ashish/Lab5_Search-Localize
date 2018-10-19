@@ -21,12 +21,12 @@ public class LightLocalizer {
 	// creating variables and fields needed
 	private static EV3LargeRegulatedMotor leftMotor;
 	private static EV3LargeRegulatedMotor rightMotor;
-	private static final int ROTATE_SPEED = 100;
+	private static final int ROTATE_SPEED = 75;
 	private static final int FWDSPEED=200;
 	private static double WHEEL_RAD;
 	private static double TRACK;
 	private Odometer odo;
-	private static final int THRESHOLD=300;	// minimum at which we assume that w black line in detected
+	private static final int THRESHOLD=400;	// minimum at which we assume that w black line in detected
 	private static final double sensor_dist=12.5; // distance between the light sensor and the wheels
 	
 	/**
@@ -69,6 +69,8 @@ public class LightLocalizer {
 		
 		leftMotor.rotate(convertDistance(WHEEL_RAD ,-(sensor_dist+5)), true);
 		rightMotor.rotate(convertDistance(WHEEL_RAD ,-(sensor_dist+5)), false);
+		leftMotor.setSpeed(ROTATE_SPEED);
+		rightMotor.setSpeed(ROTATE_SPEED);
 		leftMotor.rotate(-convertAngle(WHEEL_RAD,TRACK, 45), true);
 		rightMotor.rotate(convertAngle(WHEEL_RAD, TRACK, 45), false);
 		odo.setTheta(0);
@@ -96,22 +98,20 @@ public class LightLocalizer {
 		// compute x and y using the formula fromt he slide
 		double thetay=angles[0]-angles[2];
 		double thetax=angles[1]-angles[3];
-		System.out.println(thetay);
-		System.out.println(thetax);
+		
 		double x=-sensor_dist*Math.cos(thetay*Math.PI/360);
 		double y=-sensor_dist*Math.cos(thetax*Math.PI/360);
-		System.out.println(x);
-		System.out.println(y);
+		
 		// compute the angle to which we should turn to 
 		// in order to go to (0,0)
 		double theta=(Math.atan(x/y)*180/Math.PI);
-		System.out.println(theta);
+		
 		// compute the distance that separate the robot from (0,0)
 		double distance=Math.sqrt(x*x+y*y);
-		System.out.println(distance);
+
 		// compute the angle offset that results from US localization
 		double fixtheta=angles[0]-(thetay/2)-270;
-		System.out.println(fixtheta);
+		
 		// turn to the position (0,0)
 		leftMotor.rotate(convertAngle(WHEEL_RAD,TRACK, theta+fixtheta), true);
 		rightMotor.rotate(-convertAngle(WHEEL_RAD, TRACK, theta+fixtheta), false);
@@ -126,7 +126,7 @@ public class LightLocalizer {
 	
 		leftMotor.rotate(-convertAngle(WHEEL_RAD,TRACK, theta-10), true);
 		rightMotor.rotate(convertAngle(WHEEL_RAD, TRACK, theta-10), false);
-		System.out.println("done");
+	
 	}
 	
 	/**

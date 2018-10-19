@@ -11,6 +11,7 @@
 package ca.mcgill.ecse211.attempt;
 
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
+import lejos.robotics.SampleProvider;
 
 public class Odometer extends OdometerData implements Runnable {
 
@@ -29,7 +30,9 @@ public class Odometer extends OdometerData implements Runnable {
 	private final double WHEEL_RAD;
 
 	private double[] position;
-
+	private  SampleProvider gyro;
+	private  float[] data;
+	public double Last=0.0;
 	private static final long ODOMETER_PERIOD = 25; // odometer update period in ms
 
 	/**
@@ -41,7 +44,7 @@ public class Odometer extends OdometerData implements Runnable {
 	 * @throws OdometerExceptions
 	 */
 	private Odometer(EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor, final double TRACK,
-			final double WHEEL_RAD) throws OdometerExceptions {
+			final double WHEEL_RAD, SampleProvider gyro) throws OdometerExceptions {
 		odoData = OdometerData.getOdometerData(); // Allows access to x,y,z
 													// manipulation methods
 		this.leftMotor = leftMotor;
@@ -55,6 +58,8 @@ public class Odometer extends OdometerData implements Runnable {
 
 		this.TRACK = TRACK;
 		this.WHEEL_RAD = WHEEL_RAD;
+		this.gyro=gyro;
+		data=new float[gyro.sampleSize()];
 
 	}
 
@@ -68,11 +73,11 @@ public class Odometer extends OdometerData implements Runnable {
 	 * @throws OdometerExceptions
 	 */
 	public synchronized static Odometer getOdometer(EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor,
-			final double TRACK, final double WHEEL_RAD) throws OdometerExceptions {
+			final double TRACK, final double WHEEL_RAD, SampleProvider gyro) throws OdometerExceptions {
 		if (odo != null) { // Return existing object
 			return odo;
 		} else { // create object and return it
-			odo = new Odometer(leftMotor, rightMotor, TRACK, WHEEL_RAD);
+			odo = new Odometer(leftMotor, rightMotor, TRACK, WHEEL_RAD, gyro);
 			return odo;
 		}
 	}
@@ -116,15 +121,17 @@ public class Odometer extends OdometerData implements Runnable {
 			this.lastRightTacho = this.rightMotorTachoCount;
 			// Calculate the change in Theta
 			deltaD = 0.5 * (distL + distR);
-			deltaT = (distL - distR) / TRACK;
+			//deltaT = (distL - distR) / TRACK;
 			// Calculate the change in X and Y coordinates
-			Theta = odo.getXYT()[2] * Math.PI / 180.0;
-			Theta += deltaT;
-			dX = deltaD * Math.sin(Theta);
-			dY = deltaD * Math.cos(Theta);
+			gyro.fetchSample(data, 0);
+			deltaT =Last-data[0];
+			Theta=odo.getXYT()[2]+deltaT;
+			dX = deltaD * Math.sin(Theta*Math.PI/180);
+			dY = deltaD * Math.cos(Theta*Math.PI/180);
 
 			// Update the coordinates
-			odo.update(dX, dY, deltaT * 180.0 / Math.PI);
+			odo.update(dX, dY, deltaT);
+			Last=data[0];
 
 			// this ensures that the odometer only runs once every period
 			updateEnd = System.currentTimeMillis();
