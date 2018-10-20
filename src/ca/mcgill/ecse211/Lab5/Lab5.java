@@ -27,7 +27,17 @@ public class Lab5 {
 	public static Navigation navigation;
 	public static ObstacleDetect obstacleDetect;
 	public static Localization localization;
-
+	private static final double TILE_SIZE=30.48;
+	private static int UUX=6;
+	private static int UUY=6;
+	private static int LLX=2;
+	private static int LLY=2;
+	private static int SC=0;
+	private static int TR=2;
+	private static final double[][] COORDONATES = { { 1, 1, 0 }, { 7 , 1, 270 },
+			{ 7 , 7 , 180 }, { 1, 7 , 90 } };
+	
+	
 	public static void main(String[] args) throws OdometerExceptions {
 
 		int buttonChoice;
@@ -73,19 +83,21 @@ public class Lab5 {
 			// Start correction if right button was pressed
 			 if (buttonChoice == Button.ID_LEFT) { // if the user selects left run falling edge localization
 				localization = new Localization(true);
-				localization.start();
+				localization.run();
 			 }else {
 				 localization = new Localization(false); // else run the rising edge one
-				 localization.start();
+				 localization.run();
 			 }
 			 
 
 		}
 		while (Button.waitForAnyPress() != Button.ID_ESCAPE);
-
-		do {
-			localization.nextStep=true; // pressing on the escape button once will trigger this statement which runs the next step of the localization: le light sensor localization
-		}while (Button.waitForAnyPress() != Button.ID_ESCAPE);
+		
+		odometer.setXYT(COORDONATES[SC][0]*TILE_SIZE, COORDONATES[SC][1]*TILE_SIZE, COORDONATES[SC][2]);
+		navigation.travelTo(COORDONATES[SC][0], LLY);
+		navigation.travelTo(LLX, LLY);
+		
+		while (Button.waitForAnyPress() != Button.ID_ESCAPE);
 		System.exit(0);
 	
 		

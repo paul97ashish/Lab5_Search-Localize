@@ -10,11 +10,11 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.robotics.SampleProvider;
 
-public class Localization extends Thread{
+public class Localization{
 	public static Navigation navigation = Lab5.navigation;
 	public static boolean reached=false;
 	public static boolean fallingEdge;
-	public static final double distancethr=35;
+	public static final double distancethr=25;
 	public static double alpha;
 	public static double beta;
 	private static boolean stopped =false; 
@@ -43,13 +43,7 @@ public class Localization extends Thread{
 	public void run(){
 		int count =0;
 		angleLocalization();
-		while(!nextStep) {
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-			}
-		}
-
+		nextStep =true;
 		leftMotor.rotate(300,true);
 		rightMotor.rotate(300,false);
 		
@@ -57,13 +51,6 @@ public class Localization extends Thread{
 		navigation.turn360(true);
 		while(nextStep) {
 			usSensor.fetchSample(usData, 0);
-//			if(count==1) {
-//				leftMotor.rotate(convertAngle(radius, track, 90), true);
-//			    rightMotor.rotate(-convertAngle(radius, track, 90), false);	
-//				leftMotor.forward();
-//				rightMotor.forward();
-//				count++;
-//			}
 
 			if(usData[0]<0.21) {				//set the threshold for the line detection 
 				Sound.beep();
