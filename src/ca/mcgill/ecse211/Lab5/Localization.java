@@ -1,7 +1,7 @@
-package ca.mcgill.ecse211.lab5;
+package ca.mcgill.ecse211.Lab5;
 
-import ca.mcgill.ecse211.lab5.Lab5;
-import ca.mcgill.ecse211.lab5.Navigation;
+import ca.mcgill.ecse211.Lab5.Lab5;
+import ca.mcgill.ecse211.Lab5.Navigation;
 import ca.mcgill.ecse211.odometer.OdometerData;
 import ca.mcgill.ecse211.odometer.OdometerExceptions;
 import lejos.hardware.Sound;

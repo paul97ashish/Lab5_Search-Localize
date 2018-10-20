@@ -1,9 +1,9 @@
-package ca.mcgill.ecse211.lab5;
+package ca.mcgill.ecse211.Lab5;
 
 
 import ca.mcgill.ecse211.odometer.Odometer;
 import ca.mcgill.ecse211.odometer.OdometerExceptions;
-import ca.mcgill.ecse211.lab5.*;
+import ca.mcgill.ecse211.Lab5.*;
 import lejos.hardware.Button;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.lcd.TextLCD;
