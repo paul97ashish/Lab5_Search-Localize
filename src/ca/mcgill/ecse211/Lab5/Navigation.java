@@ -3,6 +3,7 @@ package ca.mcgill.ecse211.Lab5;
 import ca.mcgill.ecse211.odometer.OdometerData;
 import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
+import lejos.hardware.sensor.EV3GyroSensor;
 
 /** This class is responsible for the calculations of distance and angle to reach desired coordinate by taking in current position information and running set calculations
  * on the info to solve for needed variables.**/
@@ -24,13 +25,25 @@ public class Navigation {
 	private static EV3LargeRegulatedMotor leftMotor = Lab5.getLeftMotor();
 	private static EV3LargeRegulatedMotor rightMotor = Lab5.getRightMotor();
 	boolean finished360 =false;
+	boolean useGyro = false;
+	public double x;
+	public double y;
+	static public EV3GyroSensor gyro;
+	public float angle[];
+	public int offset;
 
 
 	/** takes input of destination coordinates and calculates angle between current position and 
 	 * destination. Also calculates distance needed to travel and commands robot to travel the distance. **/
-	void travelTo(double x, double y) {					
-														
-		
+	void travelTo(double x, double y) {	
+		if(useGyro) {
+			gyro.fetchSample(angle, offset);
+			while(angle[0]<0)
+				angle[0]+=360;
+			Lab5.odometer.setTheta(angle[0]%360);
+		}
+		this.x=x;
+		this.y=y;
 		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] {leftMotor, rightMotor}) {		//initializes right and left motor.
 		      motor.stop();
 		      motor.setAcceleration(3000);

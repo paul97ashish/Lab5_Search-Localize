@@ -8,6 +8,7 @@ import lejos.hardware.Sound;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.sensor.EV3ColorSensor;
+import lejos.hardware.sensor.EV3GyroSensor;
 import lejos.robotics.Gyroscope;
 import lejos.robotics.SampleProvider;
 
@@ -30,10 +31,10 @@ public class Localization{
 	private double radius = Lab5.getRadius();
 	private double track = Lab5.getTrack();
 	private double array[] = new double[4];
-	private Gyroscope gyro;
+	private EV3GyroSensor gyro;
 	
 	
-	public Localization(boolean fallingEdge, Gyroscope gyro){
+	public Localization(boolean fallingEdge, EV3GyroSensor gyro){
 		this.fallingEdge=fallingEdge; //  records if the user inputed falling or rising edge detection
 		this.gyro = gyro;
 	}
