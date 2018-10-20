@@ -1,4 +1,4 @@
-package ca.mcgill.ecse211.Lab5;
+package ca.mcgill.ecse211.lab5;
 
 public interface UltrasonicController {
 

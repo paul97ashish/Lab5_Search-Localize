@@ -1,4 +1,4 @@
-package ca.mcgill.ecse211.Lab5;
+package ca.mcgill.ecse211.lab5;
 
 import ca.mcgill.ecse211.odometer.OdometerData;
 import lejos.hardware.Sound;
@@ -10,7 +10,7 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 public class Navigation {
 
 	private static final int FORWARD_SPEED =250;
-	private static final int ROTATE_SPEED = 100;
+	private static final int ROTATE_SPEED = 150;
 	private static final double TILE_SIZE = 30.48;
 	public OdometerData odometerData;
 	private static final double radius = Lab5.getRadius();

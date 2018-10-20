@@ -1,4 +1,4 @@
-package ca.mcgill.ecse211.Lab5;
+package ca.mcgill.ecse211.lab5;
 
 
 import ca.mcgill.ecse211.odometer.Odometer;
@@ -19,13 +19,13 @@ public class Lab5 {
 			new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
 	private static final EV3LargeRegulatedMotor rightMotor =
 			new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
-	private static final Port usPort = LocalEV3.get().getPort("S1");
+	private static final Port usPort = LocalEV3.get().getPort("S4");
 	private static final TextLCD lcd = LocalEV3.get().getTextLCD();
-	public static final double WHEEL_RAD = 2.1;
-	public static final double TRACK = 12.7;
+	public static final double WHEEL_RAD = 2.2;
+	public static final double TRACK = 15.7;
 	public static Display odometryDisplay;
 	public static Navigation navigation;
-//	public static ObstacleDetect obstacleDetect;
+	public static ObstacleDetect obstacleDetect;
 	public static Localization localization;
 
 	public static void main(String[] args) throws OdometerExceptions {
@@ -58,15 +58,15 @@ public class Lab5 {
 			lcd.drawString("  edge  |  edge   ", 0, 2);
 			lcd.drawString("        |       ", 0, 3);
 			lcd.drawString("        |        ", 0, 4);
-
+//			navigation.turn360(true);
 			buttonChoice = Button.waitForAnyPress(); 									// Record choice (left or right press)
-
+			
 			// Start odometer and display threads
 			Thread odoThread = new Thread(odometer);
 			odoThread.start();
 			Thread odoDisplayThread = new Thread(odometryDisplay);
 			odoDisplayThread.start();
-//			obstacleDetect = new ObstacleDetect();//start the obstacle detect class that sample the ultrasonic sensor
+			obstacleDetect = new ObstacleDetect();//start the obstacle detect class that sample the ultrasonic sensor
 	    	usPoller = new UltrasonicPoller(usDistance, usData, obstacleDetect );
 	        usPoller.start();
 

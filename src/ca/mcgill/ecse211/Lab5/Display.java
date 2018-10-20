@@ -1,4 +1,4 @@
-package ca.mcgill.ecse211.Lab5;
+package ca.mcgill.ecse211.lab5;
 
 import java.text.DecimalFormat;
 import ca.mcgill.ecse211.odometer.Odometer;
