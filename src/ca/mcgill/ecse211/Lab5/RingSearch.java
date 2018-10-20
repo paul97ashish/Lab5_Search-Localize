@@ -49,9 +49,11 @@ public class RingSearch extends Thread{
 						leftMotor.forward();
 						rightMotor.forward();
 					}
+					navigation.travelTo(LastX, LastY);
 					
 					
 				}
+				
 				
 			}
 			
