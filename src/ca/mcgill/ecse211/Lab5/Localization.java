@@ -8,6 +8,7 @@ import lejos.hardware.Sound;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.sensor.EV3ColorSensor;
+import lejos.robotics.Gyroscope;
 import lejos.robotics.SampleProvider;
 
 public class Localization{
@@ -29,10 +30,12 @@ public class Localization{
 	private double radius = Lab5.getRadius();
 	private double track = Lab5.getTrack();
 	private double array[] = new double[4];
+	private Gyroscope gyro;
 	
 	
-	public Localization(boolean fallingEdge){
+	public Localization(boolean fallingEdge, Gyroscope gyro){
 		this.fallingEdge=fallingEdge; //  records if the user inputed falling or rising edge detection
+		this.gyro = gyro;
 	}
 	
 	/**This method combines calculations from the odometry and navigation class with readings from an ultrasonic sensor and light sensor in order to correctly
@@ -81,6 +84,7 @@ public class Localization{
 				Lab5.odometryDisplay.odo.setXYT(0, 0, 0);											//display origin position when reached
 
 				count++;
+				gyro.reset();
 				break;
 				
 			}
