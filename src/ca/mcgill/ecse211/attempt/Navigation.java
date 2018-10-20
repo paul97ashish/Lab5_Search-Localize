@@ -135,7 +135,7 @@ public class Navigation {
 			leftMotor.rotate(convertDistance(WHEEL_RAD, dist), true);
 			rightMotor.rotate(convertDistance(WHEEL_RAD, dist), true);
 			// keep checking for obstacle and avoid them in case it found one
-			while (!withinerror(currentX, currentY, x, y)) {
+			while (leftMotor.isMoving()) {
 				// update our current X and Y
 				currentX = odo.getXYT()[0];
 				currentY = odo.getXYT()[1];
@@ -145,12 +145,15 @@ public class Navigation {
 				// if detect Obstacle, call the Avoid and break from this loop to go back the outter loop
 				// If we're looking for a ring, check if its the correct ring
 				if (distance < safeDistance) {
-					
-					if (!(fetch()<safeDistance && fetch()<safeDistance))break;
-					leftMotor.stop(true);
-					rightMotor.stop();
+//					System.out.println(distance);
+					if (!(fetch()<safeDistance && fetch()<safeDistance))
+						continue;
+					leftMotor.setSpeed(50);
+					rightMotor.setSpeed(50);
 					if(find) {
 						int color=detector.detect()+1;
+						leftMotor.stop(true);
+						rightMotor.stop();
 						// if we found the ring, we beep and return true
 						if (color==Target) {
 							Sound.beep();
@@ -179,7 +182,8 @@ public class Navigation {
 
 	}
 	public int fetch() {
-		usSensor.fetchSample(usData, 0); 
+		usSensor.fetchSample(usData, 0);
+		System.out.println(usData[0]);
 		return (int) (usData[0] * 100.0); 
 	}
 	/**

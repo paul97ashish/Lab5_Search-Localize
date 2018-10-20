@@ -25,7 +25,7 @@ public class Lab5 {
 	public static final double TRACK = 12.7;
 	public static Display odometryDisplay;
 	public static Navigation navigation;
-	public static ObstacleDetect obstacleDetect;
+//	public static ObstacleDetect obstacleDetect;
 	public static Localization localization;
 
 	public static void main(String[] args) throws OdometerExceptions {
@@ -66,7 +66,7 @@ public class Lab5 {
 			odoThread.start();
 			Thread odoDisplayThread = new Thread(odometryDisplay);
 			odoDisplayThread.start();
-			obstacleDetect = new ObstacleDetect();//start the obstacle detect class that sample the ultrasonic sensor
+//			obstacleDetect = new ObstacleDetect();//start the obstacle detect class that sample the ultrasonic sensor
 	    	usPoller = new UltrasonicPoller(usDistance, usData, obstacleDetect );
 	        usPoller.start();
 

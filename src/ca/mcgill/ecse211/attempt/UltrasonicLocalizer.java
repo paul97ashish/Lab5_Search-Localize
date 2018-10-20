@@ -110,7 +110,7 @@ public class UltrasonicLocalizer {
 			dtheta = 225 - avr;
 		}
 
-		dtheta += odo.getXYT()[2];
+		dtheta += odo.getXYT()[2]-90;
 		// rotate by the calculated amount
 		leftMotor.rotate(convertAngle(WHEEL_RAD, TRACK, dtheta), true);
 		rightMotor.rotate(-convertAngle(WHEEL_RAD, TRACK, dtheta), false);

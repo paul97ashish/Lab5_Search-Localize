@@ -25,7 +25,7 @@ public class Lab5 {
 	public static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
 	private static final TextLCD lcd = LocalEV3.get().getTextLCD();
 	public static final double WHEEL_RAD = 2.2;
-	public static final double TRACK = 15.9;
+	public static final double TRACK = 15.7;
 	public static final int[][] SEARCH_AREA = { { 6, 6 }, { 2, 2 } };
 	public static final int SC = 0;
 	public static final int TR = 3;
@@ -39,7 +39,9 @@ public class Lab5 {
 	private static EV3GyroSensor gyro=new EV3GyroSensor(LocalEV3.get().getPort("S3"));
 	private static SampleProvider gyroAngle=gyro.getAngleMode();
 	private static float[]	Angle=new float[gyroAngle.sampleSize()];
+	private static float[] data;
 	public static void main(String[] args) throws OdometerExceptions, InterruptedException {
+
 
 		int buttonChoice;
 
@@ -58,7 +60,10 @@ public class Lab5 {
 		lcd.drawString("Press				", 0, 3);
 
 		buttonChoice = Button.waitForAnyPress(); // Record choice (left or right press)
-
+		leftMotor.setSpeed(200);
+		rightMotor.setSpeed(200);
+		leftMotor.rotate(-convertAngle(WHEEL_RAD,TRACK, 360), true);
+		rightMotor.rotate(+convertAngle(WHEEL_RAD, TRACK, 360), false);
 		// create odometer thread
 		lcd.clear();
 		Thread odoThread = new Thread(odometer);
@@ -67,7 +72,6 @@ public class Lab5 {
 		UltrasonicLocalizer ultra = new UltrasonicLocalizer(leftMotor, rightMotor, odometer, WHEEL_RAD, TRACK,
 				usSensor);
 		lcd.clear();
-
 		// Run falling edge localization
 		ultra.FallingEdge();
 		ultra = null;
@@ -80,7 +84,9 @@ public class Lab5 {
 		light = null;
 		odometer.setXYT(COORDONATES[SC][0], COORDONATES[SC][1], COORDONATES[SC][2]);
 		gyro.reset();
+		data=new float[gyro.sampleSize()];
 		odometer.Last=0.0;
+		odometer.setTheta(0);
 		Navigation nav = new Navigation(TILE_SIZE, leftMotor, rightMotor, TRACK, WHEEL_RAD, TR, usSensor);
 		// got to the lower left corner
 		System.out.println(odometer.getXYT()[2]);
@@ -90,6 +96,8 @@ public class Lab5 {
 		boolean first = true;
 		int j=SEARCH_AREA[1][1];
 		for (int i = SEARCH_AREA[1][0]; i <= SEARCH_AREA[0][0]; i++) {
+			gyro.fetchSample(data, 0);
+			odometer.setTheta(data[0]);
 			if (nav.TravelTo(i * TILE_SIZE, j * TILE_SIZE, true))
 				break;
 			
@@ -111,4 +119,11 @@ public class Lab5 {
 			;
 		System.exit(0);
 	}
+	private static int convertAngle(double radius, double width, double angle) {
+		return convertDistance(radius, Math.PI * width * angle / 360.0);
+	}
+	private static int convertDistance(double radius, double distance) {
+		return (int) ((180.0 * distance) / (Math.PI * radius));
+	}
+	
 }

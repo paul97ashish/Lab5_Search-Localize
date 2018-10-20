@@ -59,7 +59,7 @@ public class Odometer extends OdometerData implements Runnable {
 		this.TRACK = TRACK;
 		this.WHEEL_RAD = WHEEL_RAD;
 		this.gyro=gyro;
-		data=new float[gyro.sampleSize()];
+//		data=new float[gyro.sampleSize()];
 
 	}
 
@@ -121,17 +121,17 @@ public class Odometer extends OdometerData implements Runnable {
 			this.lastRightTacho = this.rightMotorTachoCount;
 			// Calculate the change in Theta
 			deltaD = 0.5 * (distL + distR);
-			//deltaT = (distL - distR) / TRACK;
+			deltaT = (distL - distR) / TRACK;
 			// Calculate the change in X and Y coordinates
-			gyro.fetchSample(data, 0);
-			deltaT =Last-data[0];
+//			gyro.fetchSample(data, 0);
+//			deltaT =Last-data[0];
 			Theta=odo.getXYT()[2]+deltaT;
 			dX = deltaD * Math.sin(Theta*Math.PI/180);
 			dY = deltaD * Math.cos(Theta*Math.PI/180);
 
 			// Update the coordinates
 			odo.update(dX, dY, deltaT);
-			Last=data[0];
+//			Last=data[0];
 
 			// this ensures that the odometer only runs once every period
 			updateEnd = System.currentTimeMillis();

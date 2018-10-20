@@ -21,12 +21,12 @@ public class LightLocalizer {
 	// creating variables and fields needed
 	private static EV3LargeRegulatedMotor leftMotor;
 	private static EV3LargeRegulatedMotor rightMotor;
-	private static final int ROTATE_SPEED = 75;
+	private static final int ROTATE_SPEED = 100;
 	private static final int FWDSPEED=200;
 	private static double WHEEL_RAD;
 	private static double TRACK;
 	private Odometer odo;
-	private static final int THRESHOLD=400;	// minimum at which we assume that w black line in detected
+	private static final int THRESHOLD=300;	// minimum at which we assume that w black line in detected
 	private static final double sensor_dist=12.5; // distance between the light sensor and the wheels
 	
 	/**
@@ -110,7 +110,7 @@ public class LightLocalizer {
 		double distance=Math.sqrt(x*x+y*y);
 
 		// compute the angle offset that results from US localization
-		double fixtheta=angles[0]-(thetay/2)-270;
+		double fixtheta=angles[0]-(thetay/2)-270 - 90;
 		
 		// turn to the position (0,0)
 		leftMotor.rotate(convertAngle(WHEEL_RAD,TRACK, theta+fixtheta), true);
