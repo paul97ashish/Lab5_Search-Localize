@@ -32,7 +32,7 @@ public class ObstacleDetect implements UltrasonicController{
 		} else if (distance >= 255) {
 			// We have repeated large values, so there must actually be nothing
 			// there: leave the distance alone
-			this.distance = distance;
+			this.distance = 255;
 		} else {
 			// distance went below 255: reset filter and leave
 			// distance alone.

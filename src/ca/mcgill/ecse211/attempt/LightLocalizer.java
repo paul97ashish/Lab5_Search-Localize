@@ -26,7 +26,7 @@ public class LightLocalizer {
 	private static double WHEEL_RAD;
 	private static double TRACK;
 	private Odometer odo;
-	private static final int THRESHOLD=300;	// minimum at which we assume that w black line in detected
+	private static final int THRESHOLD=250;	// minimum at which we assume that w black line in detected
 	private static final double sensor_dist=12.5; // distance between the light sensor and the wheels
 	
 	/**

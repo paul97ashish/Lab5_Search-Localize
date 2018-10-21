@@ -11,7 +11,7 @@ import lejos.hardware.sensor.EV3GyroSensor;
 public class Navigation {
 
 	private static final int FORWARD_SPEED =250;
-	private static final int ROTATE_SPEED = 150;
+	private static final int ROTATE_SPEED = 200;
 	private static final double TILE_SIZE = 30.48;
 	public OdometerData odometerData;
 	private static final double radius = Lab5.getRadius();
@@ -36,12 +36,12 @@ public class Navigation {
 	/** takes input of destination coordinates and calculates angle between current position and 
 	 * destination. Also calculates distance needed to travel and commands robot to travel the distance. **/
 	void travelTo(double x, double y) {	
-		if(useGyro) {
+	/*	if(useGyro) {
 			gyro.fetchSample(angle, offset);
 			while(angle[0]<0)
 				angle[0]+=360;
-			Lab5.odometer.setTheta(angle[0]%360);
-		}
+			Lab5.odometryDisplay.odo.setTheta(angle[0]%360);
+		}*/
 		this.x=x;
 		this.y=y;
 		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] {leftMotor, rightMotor}) {		//initializes right and left motor.
@@ -49,10 +49,10 @@ public class Navigation {
 		      motor.setAcceleration(3000);
 		   }
 		
-		current = Lab5.odometryDisplay.getXYT();		//gets current X Y and Theta values
+		current = Lab5.odometryDisplay.odo.getXYT();		//gets current X Y and Theta values
 		deltaX = x*TILE_SIZE- current[0];				//deltaX or deltaY is the difference between where you want to go and where you are currently.
 		deltaY = y*TILE_SIZE- current[1];				
-
+		//System.out.println(deltaX +"    " +deltaY);
 		double newTheta;
 		if(deltaY==0) {									//series of checks to avoid division by 0 if destination coordinate is on same axis
 			if(deltaX<0)
@@ -68,7 +68,8 @@ public class Navigation {
 			}
 
 		}
-		turnTo(newTheta);				
+		turnTo(newTheta);
+		
 		stat = true;					//boolean to say travelTo class is in action and moving forward. Very important for the obstacleAvoid.
 		leftMotor.setSpeed(FORWARD_SPEED);
 		rightMotor.setSpeed(FORWARD_SPEED);
@@ -77,12 +78,12 @@ public class Navigation {
 		rightMotor.rotate(convertDistance(radius, Math.sqrt(deltaX*deltaX + deltaY*deltaY)),false);
 		Sound.beep();
 		if(obstacle == true) {			//if there is an obstacle, sleep repeatedly for half a second until the obstacle has been passed.
-			while(obstacle)
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
-				}
-			travelTo(x,y);				//after the obstacle has been passed, restart the travelTo function recursively to resume desired path.
+			while(leftMotor.isMoving()|| rightMotor.isMoving()) {
+				System.out.println("Checking for the ring");			
+				Lab5.search.look();
+			}
+			
+			//after the obstacle has been passed, restart the travelTo function recursively to resume desired path.
 		}
 		stat=false;						//set to false to indicate that we've reached the current coordinate and the robot is stopped.
 	}
@@ -91,7 +92,7 @@ public class Navigation {
 	 *  coordinate and then turns towards calculated angle relative to the board**/
 	
 	void turnTo(double theta){	
-		current= Lab5.odometryDisplay.getXYT();
+		current= Lab5.odometryDisplay.odo.getXYT();
 		double deltaT= theta- Math.toRadians(current[2]%360);
 		deltaT %= 2*Math.PI;								
 		if(deltaT>Math.PI)

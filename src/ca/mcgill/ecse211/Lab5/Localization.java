@@ -16,7 +16,7 @@ public class Localization{
 	public static Navigation navigation = Lab5.navigation;
 	public static boolean reached=false;
 	public static boolean fallingEdge;
-	public static final double distancethr=25;
+	public static final double distancethr=35;
 	public static double alpha;
 	public static double beta;
 	private static boolean stopped =false; 
@@ -54,12 +54,18 @@ public class Localization{
 		
 		navigation.turn360(true);
 		while(nextStep) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			usSensor.fetchSample(usData, 0);
 
-			if(usData[0]<0.21) {				//set the threshold for the line detection 
+			if(usData[0]<0.25) {				//set the threshold for the line detection 
 				Sound.beep();
 				if(count !=4)
-					array[count++]=Lab5.odometryDisplay.getXYT()[2];	//storing the angle it was detected at.
+					array[count++]=Lab5.odometryDisplay.odo.getXYT()[2];	//storing the angle it was detected at.
 			}
 			
 			if(count == 4) {
@@ -82,7 +88,7 @@ public class Localization{
 				leftMotor.rotate(convertDistance(radius, distance),true);							//moves to the point
 				rightMotor.rotate(convertDistance(radius, distance),false);	
 				navigation.turnTo(0);																//turn back forward
-				Lab5.odometryDisplay.odo.setXYT(0, 0, 0);											//display origin position when reached
+		
 
 				count++;
 				gyro.reset();

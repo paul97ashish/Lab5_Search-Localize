@@ -36,13 +36,14 @@ public class Lab5 {
 	private static int LLX=2;
 	private static int LLY=2;
 	private static int SC=0;
-	private static int TR=2;
+	public static int TR=2;
 	private static final double[][] COORDONATES = { { 1, 1, 0 }, { 7 , 1, 270 },
 			{ 7 , 7 , 180 }, { 1, 7 , 90 } };
 	public static Odometer odometer;
 	public static float[] data;
 	public static SampleProvider gyroAngle;
-
+	public static RingSearch search;
+	
 	public static void main(String[] args) throws OdometerExceptions {
 
 		int buttonChoice;
@@ -58,9 +59,9 @@ public class Lab5 {
 		navigation = new Navigation(); //create an instance of the navigation class
 		float[] usData = new float[usDistance.sampleSize()]; //create a sample array
 		UltrasonicPoller usPoller = null;
-		gyro = new EV3GyroSensor(LocalEV3.get().getPort("S3"));
+	/*	gyro = new EV3GyroSensor(LocalEV3.get().getPort("S3"));
 		gyroAngle = gyro.getAngleMode();
-		data = new float[gyroAngle.sampleSize()];
+		data = new float[gyroAngle.sampleSize()];*/
 
 
 
@@ -100,10 +101,25 @@ public class Lab5 {
 		navigation.angle = data;
 		navigation.offset =(int) COORDONATES[SC][2];
 
-		odometer.setXYT(COORDONATES[SC][0]*TILE_SIZE, COORDONATES[SC][1]*TILE_SIZE, COORDONATES[SC][2]);
+		odometryDisplay.odo.setXYT(COORDONATES[SC][0]*TILE_SIZE, COORDONATES[SC][1]*TILE_SIZE, COORDONATES[SC][2]);
+		
+	
 		navigation.travelTo(COORDONATES[SC][0], LLY);
 		navigation.travelTo(LLX, LLY);
-
+		navigation.obstacle=true;
+		search=new RingSearch(obstacleDetect, navigation);
+		boolean detected=false;
+		navigation.travelTo(LLX, UUY);
+		detected=(search.ringValue()==TR);
+		if(!detected)navigation.travelTo(UUX, UUY);
+		detected=(search.ringValue()==TR);
+		if(!detected)navigation.travelTo(UUX, LLY);
+		detected=(search.ringValue()==TR);
+		if(!detected)navigation.travelTo(LLX, LLY);
+		detected=(search.ringValue()==TR);
+		navigation.obstacle=false;
+		navigation.travelTo(UUX, UUY);
+		
 		while (Button.waitForAnyPress() != Button.ID_ESCAPE);
 		System.exit(0);
 
