@@ -12,22 +12,22 @@ public class RingSearch  {
 	private static ColorDetection detect;
 	private static int distance;
 	private static int Last;
-	private static ObstacleDetect sensor;
+	private static UltrasonicPoller usPoller;
 	private static double LastX, LastY;
 	private static Navigation navigation;
 	private static final int SPEED = 50;
 	int ringValue = 5;
 
-	public RingSearch(ObstacleDetect sens, Navigation navig) {
+	public RingSearch(UltrasonicPoller poller, Navigation navig) {
 		System.out.println("RingSerch created");
 		SensorMotor.rotate(-90);
 		detect = new ColorDetection();
-		sensor = sens;
+		usPoller=poller;
 		navigation = navig;
 	}
 
 	public void look() {
-		Last = sensor.readUSDistance()*100;
+		Last = usPoller.getDistance();
 		System.out.println(Last);
 		try {
 			Thread.sleep(100);
@@ -35,17 +35,17 @@ public class RingSearch  {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		distance = sensor.readUSDistance()*100;
+		distance = usPoller.getDistance();
 
 		if ((Last - distance) > 20) {
 			leftMotor.stop(true);
 			rightMotor.stop();
-			LastX = Lab5.odometryDisplay.getXYT()[0];
-			LastY = Lab5.odometryDisplay.getXYT()[1];
+			LastX = Lab5.odometer.getXYT()[0];
+			LastY = Lab5.odometer.getXYT()[1];
 			double TargX = navigation.x;
 			double TargY = navigation.y;
 			if (checkRing()) {
-				int distance = sensor.readUSDistance()*100;
+				int distance = usPoller.getDistance();
 				navigation.travelTo(LastX + distance - 10, LastY);
 				leftMotor.setSpeed(SPEED);
 				rightMotor.setSpeed(SPEED);
@@ -65,18 +65,25 @@ public class RingSearch  {
 				rightMotor.setSpeed(200);
 				leftMotor.backward();
 				rightMotor.backward();
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				navigation.travelTo(LastX, LastY);
-				navigation.travelTo(TargX, TargY);
+				
 			}
+			navigation.travelTo(TargX, TargY);
 
 		}
 
 	}
 
 	public boolean checkRing() {
-		int distance1 = sensor.readUSDistance()*100;
-		int distance2 = sensor.readUSDistance()*100;
-		int distance3 = sensor.readUSDistance()*100;
+		int distance1 = usPoller.getDistance();
+		int distance2 = usPoller.getDistance();
+		int distance3 = usPoller.getDistance();
 		return (distance1 < 100) && (distance2 < 100) && (distance3 < 100);
 	}
 

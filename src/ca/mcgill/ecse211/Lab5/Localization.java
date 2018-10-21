@@ -25,8 +25,8 @@ public class Localization{
 	private static OdometerData odo;
 	boolean nextStep=false;
 	private static final EV3ColorSensor colorSensor=new EV3ColorSensor(LocalEV3.get().getPort("S2"));
-	SampleProvider usSensor=colorSensor.getMode("Red");
-	float [] usData=new float [usSensor.sampleSize()];
+	SampleProvider lightSensor=colorSensor.getMode("Red");
+	float [] lightData=new float [lightSensor.sampleSize()];
 	private double currentPosition[];
 	private double radius = Lab5.getRadius();
 	private double track = Lab5.getTrack();
@@ -60,12 +60,12 @@ public class Localization{
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			usSensor.fetchSample(usData, 0);
+			lightSensor.fetchSample(lightData, 0);
 
-			if(usData[0]<0.25) {				//set the threshold for the line detection 
+			if(lightData[0]<0.25) {				//set the threshold for the line detection 
 				Sound.beep();
 				if(count !=4)
-					array[count++]=Lab5.odometryDisplay.odo.getXYT()[2];	//storing the angle it was detected at.
+					array[count++]=Lab5.odometer.getXYT()[2];	//storing the angle it was detected at.
 			}
 			
 			if(count == 4) {
@@ -105,17 +105,27 @@ public class Localization{
 	 * 0 degrees.**/
 	
 	private void angleLocalization() {
+		int lastDistance;
+		int distance;
 		navigation.turn360(true);
 		try {
 			Thread.sleep(100);
 		} catch (InterruptedException e1) {
 		}
-		while(!stopped)
+		while(!stopped) {
 			if(fallingEdge) {
-				if(Lab5.obstacleDetect.lastDistance-Lab5.obstacleDetect.distance>distancethr && Lab5.obstacleDetect.distance<60) {	//triggered if falling edge is detected
+				lastDistance=Lab5.usPoller.getDistance();
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				 distance=Lab5.usPoller.getDistance();
+				if((lastDistance-distance)>distancethr && distance<60) {	//triggered if falling edge is detected
 					if(!reached) {			//if its the first falling edge detected
 						reached =true;	
-						alpha=Lab5.odometryDisplay.getXYT()[2];		//store the first angle
+						alpha=Lab5.odometer.getXYT()[2];		//store the first angle
 						leftMotor.setSpeed(1);						//slow the motors to reduce error when stopping
 						rightMotor.setSpeed(1);
 						leftMotor.stop();						
@@ -127,7 +137,7 @@ public class Localization{
 						} catch (InterruptedException e) {
 						}
 					}else {
-						beta=Lab5.odometryDisplay.getXYT()[2];		//if its not the first falling edge detected store the angle
+						beta=Lab5.odometer.getXYT()[2];		//if its not the first falling edge detected store the angle
 						leftMotor.setSpeed(1);
 						rightMotor.setSpeed(1);
 						leftMotor.stop();
@@ -136,42 +146,20 @@ public class Localization{
 						Sound.beep();
 					}
 				}
-			}else {
-				if(Lab5.obstacleDetect.distance-Lab5.obstacleDetect.lastDistance>distancethr) {			//same logic as above but for rising edge trigger.
-					if(!reached) {
-						reached =true;
-						alpha=Lab5.odometryDisplay.getXYT()[2];
-						leftMotor.setSpeed(1);
-						rightMotor.setSpeed(1);
-						leftMotor.stop();
-						rightMotor.stop();
-						navigation.turn360(false);
-						try {
-							Thread.sleep(1000);
-						} catch (InterruptedException e) {
-						}
-					}else {
-						beta=Lab5.odometryDisplay.getXYT()[2];
-						leftMotor.setSpeed(1);
-						rightMotor.setSpeed(1);
-						leftMotor.stop();
-						rightMotor.stop();
-						stopped=true;
-					}
-				}
 			}
+		}
 		if(alpha>beta) {
-			double current[] =Lab5.odometryDisplay.getXYT();
-			Lab5.odometryDisplay.odo.setTheta(45-(alpha+beta)/2+current[2]);	//sets the new corrected theta.
+			double current[] =Lab5.odometer.getXYT();
+			Lab5.odometer.setTheta(45-(alpha+beta)/2+current[2]);	//sets the new corrected theta.
 
 		}else {
-			double current[] =Lab5.odometryDisplay.getXYT();
-			Lab5.odometryDisplay.odo.setTheta(225-(alpha+beta)/2+current[2]);	//also sets the new corrected if the first angle measured is less than the second.
+			double current[] =Lab5.odometer.getXYT();
+			Lab5.odometer.setTheta(225-(alpha+beta)/2+current[2]);	//also sets the new corrected if the first angle measured is less than the second.
 		}
 
 		navigation.turnTo(0);													//turn back to 0 degrees/
 
-		currentPosition=Lab5.odometryDisplay.getXYT();
+		currentPosition=Lab5.odometer.getXYT();
 	}
 	private static int convertDistance(double radius, double distance) {	//converts distance to wheel rotations
 		return (int) ((180.0 * distance) / (Math.PI * radius));

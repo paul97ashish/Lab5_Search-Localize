@@ -49,7 +49,7 @@ public class Navigation {
 		      motor.setAcceleration(3000);
 		   }
 		
-		current = Lab5.odometryDisplay.odo.getXYT();		//gets current X Y and Theta values
+		current = Lab5.odometer.getXYT();		//gets current X Y and Theta values
 		deltaX = x*TILE_SIZE- current[0];				//deltaX or deltaY is the difference between where you want to go and where you are currently.
 		deltaY = y*TILE_SIZE- current[1];				
 		//System.out.println(deltaX +"    " +deltaY);
@@ -92,7 +92,7 @@ public class Navigation {
 	 *  coordinate and then turns towards calculated angle relative to the board**/
 	
 	void turnTo(double theta){	
-		current= Lab5.odometryDisplay.odo.getXYT();
+		current= Lab5.odometer.getXYT();
 		double deltaT= theta- Math.toRadians(current[2]%360);
 		deltaT %= 2*Math.PI;								
 		if(deltaT>Math.PI)

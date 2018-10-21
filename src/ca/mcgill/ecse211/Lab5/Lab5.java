@@ -25,11 +25,12 @@ public class Lab5 {
 	private static final TextLCD lcd = LocalEV3.get().getTextLCD();
 	public static final double WHEEL_RAD = 2.2;
 	public static final double TRACK = 15.7;
-	public static Display odometryDisplay;
+
 	public static Navigation navigation;
 	public static ObstacleDetect obstacleDetect;
 	public static Localization localization;
 	public static EV3GyroSensor gyro;
+	public static UltrasonicPoller usPoller;
 	private static final double TILE_SIZE=30.48;
 	private static int UUX=6;
 	private static int UUY=6;
@@ -52,13 +53,13 @@ public class Lab5 {
 		odometer = Odometer.getOdometer(leftMotor, rightMotor, TRACK, WHEEL_RAD); // TODO Complete implementation
 
 		// implementation
-		odometryDisplay = new Display(lcd); // No need to change
+	
 		SensorModes usSensor = new EV3UltrasonicSensor(usPort); // usSensor is the instance
 		SampleProvider usDistance = usSensor.getMode("Distance"); // usDistance provides samples from
 		// this instance
 		navigation = new Navigation(); //create an instance of the navigation class
 		float[] usData = new float[usDistance.sampleSize()]; //create a sample array
-		UltrasonicPoller usPoller = null;
+		
 	/*	gyro = new EV3GyroSensor(LocalEV3.get().getPort("S3"));
 		gyroAngle = gyro.getAngleMode();
 		data = new float[gyroAngle.sampleSize()];*/
@@ -82,12 +83,10 @@ public class Lab5 {
 		// Start odometer and display threads
 		Thread odoThread = new Thread(odometer);
 		odoThread.start();
-		Thread odoDisplayThread = new Thread(odometryDisplay);
-		odoDisplayThread.start();
-		obstacleDetect = new ObstacleDetect();//start the obstacle detect class that sample the ultrasonic sensor
-		usPoller = new UltrasonicPoller(usDistance, usData, obstacleDetect );
-		usPoller.start();
-
+		
+		
+		usPoller = new UltrasonicPoller(usDistance, usData );
+		
 		// Start correction if right button was pressed
 		if (buttonChoice == Button.ID_LEFT) { // if the user selects left run falling edge localization
 			localization = new Localization(true,gyro);
@@ -100,14 +99,16 @@ public class Lab5 {
 		navigation.useGyro = true;
 		navigation.angle = data;
 		navigation.offset =(int) COORDONATES[SC][2];
-
-		odometryDisplay.odo.setXYT(COORDONATES[SC][0]*TILE_SIZE, COORDONATES[SC][1]*TILE_SIZE, COORDONATES[SC][2]);
 		
-	
+		odometer.setXYT(COORDONATES[SC][0]*TILE_SIZE, COORDONATES[SC][1]*TILE_SIZE, COORDONATES[SC][2]);
+		
 		navigation.travelTo(COORDONATES[SC][0], LLY);
 		navigation.travelTo(LLX, LLY);
+		
 		navigation.obstacle=true;
-		search=new RingSearch(obstacleDetect, navigation);
+		search=new RingSearch(usPoller, navigation);
+		
+		
 		boolean detected=false;
 		navigation.travelTo(LLX, UUY);
 		detected=(search.ringValue()==TR);

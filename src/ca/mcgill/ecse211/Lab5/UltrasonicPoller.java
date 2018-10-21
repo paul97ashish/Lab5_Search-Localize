@@ -9,14 +9,17 @@ import lejos.robotics.SampleProvider;
  * one cycle through the loop is approximately 70 mS. This corresponds to a sampling rate of 1/70mS
  * or about 14 Hz.
  */
-public class UltrasonicPoller extends Thread {
+public class UltrasonicPoller  {
   private SampleProvider us;
-  private UltrasonicController cont;
   private float[] usData;
-
-  public UltrasonicPoller(SampleProvider us, float[] usData, UltrasonicController cont) {
+  
+  private static final int FILTER_OUT = 20;
+  private int filterControl;
+  
+  private int distance;
+  public UltrasonicPoller(SampleProvider us, float[] usData) {
     this.us = us;
-    this.cont = cont;
+  
     this.usData = usData;
   }
 
@@ -26,17 +29,34 @@ public class UltrasonicPoller extends Thread {
    * 
    * @see java.lang.Thread#run()
    */
-  public void run() {
+  
+  public int getDistance() {
     int distance;
-    while (true) {
-      us.fetchSample(usData, 0); // acquire data
-      distance = (int) (usData[0] * 100.0); // extract from buffer, cast to int
-      cont.processUSData(distance); // now take action depending on value
-      try {
-        Thread.sleep(50);
-      } catch (Exception e) {
-      } // Poor man's timed sampling
-    }
+    us.fetchSample(usData, 0); // acquire data
+     distance = (int) (usData[0] * 100.0); // extract from buffer, cast to int
+     while (process(distance)==300) {
+    	 us.fetchSample(usData, 0); // acquire data
+         distance = (int) (usData[0] * 100.0); // extract from buffer, cast to int
+     }
+     return this.distance;
   }
   
+  public int process(int distance) {
+	  if (distance >= 255 && filterControl < FILTER_OUT) {
+			// bad value, do not set the distance var, however do increment the
+			// filter value
+			filterControl++;
+			return 300;
+		} else if (distance >= 255) {
+			// We have repeated large values, so there must actually be nothing
+			// there: leave the distance alone
+			this.distance = 255;
+		} else {
+			// distance went below 255: reset filter and leave
+			// distance alone.
+			filterControl = 0;
+			this.distance = distance;
+		}
+	  return this.distance;
+  }
 }

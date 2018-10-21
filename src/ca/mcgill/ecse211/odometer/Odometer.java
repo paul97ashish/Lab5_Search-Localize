@@ -123,7 +123,7 @@ public class Odometer extends OdometerData implements Runnable {
       lastTachoR=nowTachoR; 
       deltaD = 0.5*(distL+distR);       				// compute displacement of vehicle using average of each wheels change in rotation
       deltaT = (distL-distR)/TRACK;
-      Theta = Lab5.odometryDisplay.odo.getXYT()[2];
+      Theta =odo.getXYT()[2];
       Theta += deltaT*180/Math.PI;            
       dX = deltaD * Math.sin(Theta*Math.PI/180);    // compute X component of displacement 
       dY = deltaD * Math.cos(Theta*Math.PI/180);  // compute Y component of displacement 
