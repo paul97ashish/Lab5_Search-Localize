@@ -27,7 +27,7 @@ public class Lab5 {
 	public static final double TRACK = 15.7;
 
 	public static Navigation navigation;
-	public static ObstacleDetect obstacleDetect;
+	
 	public static Localization localization;
 	public static EV3GyroSensor gyro;
 	public static UltrasonicPoller usPoller;
