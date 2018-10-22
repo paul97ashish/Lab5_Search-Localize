@@ -70,7 +70,7 @@ public class Localization{
 			
 			if(count == 4) {
 				try {
-					Thread.sleep(2000);
+					Thread.sleep(1500);
 				} catch (InterruptedException e) {
 				}
 				double deltaTx=array[1]-array[3];				//delta angles at second and fourth detected lines
@@ -88,11 +88,9 @@ public class Localization{
 				leftMotor.rotate(convertDistance(radius, distance),true);							//moves to the point
 				rightMotor.rotate(convertDistance(radius, distance),false);	
 			//	Lab5.odometer.setTheta(theta);
-				leftMotor.rotate(convertAngle(radius, track , theta+45),true);		//turns to the origin point	
-				rightMotor.rotate(-convertAngle(radius, track , theta+45),false);
+				leftMotor.rotate(-convertAngle(radius, track , theta+45),true);		//turns to the origin point	
+				rightMotor.rotate(convertAngle(radius, track , theta+45),false);
 			//	navigation.turnTo(0);																//turn back forward
-		
-
 				count++;
 				gyro.reset();
 				break;

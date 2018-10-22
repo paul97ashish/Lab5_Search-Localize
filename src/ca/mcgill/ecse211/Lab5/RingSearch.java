@@ -17,10 +17,13 @@ public class RingSearch  {
 	private static Navigation navigation;
 	private static final int SPEED = 50;
 	int ringValue = 5;
+	private static double radius = Lab5.WHEEL_RAD;
+	boolean notFound= true;
 
 	public RingSearch(UltrasonicPoller poller, Navigation navig) {
 		//System.out.println("RingSerch created");
-		SensorMotor.rotate(-90);
+		SensorMotor.setSpeed(100);
+		SensorMotor.rotate(-110);
 		detect = new ColorDetection();
 		usPoller=poller;
 		navigation = navig;
@@ -48,17 +51,34 @@ public class RingSearch  {
 			
 				int distance = usPoller.getDistance();
 				System.out.println("rechecked distance :" + distance);
-				navigation.travelTo((LastX + distance - 10)/Lab5.TILE_SIZE, LastY/Lab5.TILE_SIZE);
+				
+				double theta=Lab5.odometer.getXYT()[2];
+				if(theta<45 && theta> 315) {
+					navigation.travelTo((LastX + distance - 15)/Lab5.TILE_SIZE, LastY/Lab5.TILE_SIZE);
+				}else if(theta>45 && theta<135) {
+					navigation.travelTo((LastX )/Lab5.TILE_SIZE, (LastY + distance - 15)/Lab5.TILE_SIZE);
+				}else if(theta<225 && theta> 135) {
+					navigation.travelTo((LastX - distance + 15)/Lab5.TILE_SIZE, LastY/Lab5.TILE_SIZE);
+				}else {
+					navigation.travelTo((LastX )/Lab5.TILE_SIZE, (LastY - distance  +15)/Lab5.TILE_SIZE);
+				}
+				
 				leftMotor.setSpeed(SPEED);
 				rightMotor.setSpeed(SPEED);
 				ringValue = detect.detect();
 				while (ringValue == 5) {
 					leftMotor.forward();
 					rightMotor.forward();
+					try {
+						Thread.sleep(40);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 					ringValue = detect.detect();
 				}
 				if (ringValue == (Lab5.TR - 1)) {
 					Sound.beep();
+					notFound=false;
 				} else {
 					Sound.beep();
 					Sound.beep();
@@ -68,15 +88,17 @@ public class RingSearch  {
 				leftMotor.backward();
 				rightMotor.backward();
 				try {
-					Thread.sleep(100);
+					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				navigation.travelTo(LastX/Lab5.TILE_SIZE, LastY/Lab5.TILE_SIZE);
-				
-			//}
-			navigation.travelTo(TargX, TargY);
+				leftMotor.rotate(convertAngle(radius, Lab5.TRACK, 90),true);
+				rightMotor.rotate(-convertAngle(radius, Lab5.TRACK, 90),false);
+				leftMotor.rotate(convertDistance(radius,13), true);
+				rightMotor.rotate(convertDistance(radius,13),false);
+				navigation.travelTo(TargX, TargY, notFound);
 
 		}
 
@@ -91,6 +113,14 @@ public class RingSearch  {
 
 	public int ringValue() {
 		return ringValue + 1;
+	}
+
+	private static int convertDistance(double radius, double distance) {	//converts distance to wheel rotations
+		return (int) ((180.0 * distance) / (Math.PI * radius));
+	}
+
+	private static int convertAngle(double radius, double width, double angle) {	//converts angle to radians for degree rotation
+		return convertDistance(radius, Math.PI * width * angle / 360.0);
 	}
 
 }

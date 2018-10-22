@@ -60,10 +60,7 @@ private static final float[] [] Meann= {{0.170390332f,0.767597595f,0.617868163f}
 	}
 	public int detect() {
 		int color;
-		do {
-			color=findMatch(fetch());
-			
-		}while(color==5);
+		color=findMatch(fetch());
 		return color;
 	}
 	public static float[] fetch() {
