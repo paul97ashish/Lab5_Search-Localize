@@ -21,7 +21,7 @@ public class Navigation {
 	private static double deltaY;
 	public static double current[];
 	boolean stat =false;	
-	boolean obstacle =false; 							//boolean that tells navigation there is an obstacle ahead and pauses the travelTo() method.
+//	boolean obstacle =false; 							//boolean that tells navigation there is an obstacle ahead and pauses the travelTo() method.
 	private static EV3LargeRegulatedMotor leftMotor = Lab5.getLeftMotor();
 	private static EV3LargeRegulatedMotor rightMotor = Lab5.getRightMotor();
 	boolean finished360 =false;
@@ -35,7 +35,10 @@ public class Navigation {
 
 	/** takes input of destination coordinates and calculates angle between current position and 
 	 * destination. Also calculates distance needed to travel and commands robot to travel the distance. **/
-	void travelTo(double x, double y) {	
+	void travelTo(double x, double y) {
+		travelTo(x,y,false);
+	}
+	void travelTo(double x, double y, boolean obstacle) {	
 	/*	if(useGyro) {
 			gyro.fetchSample(angle, offset);
 			while(angle[0]<0)
@@ -75,11 +78,11 @@ public class Navigation {
 		rightMotor.setSpeed(FORWARD_SPEED);
 		Sound.beep();					
 		leftMotor.rotate(convertDistance(radius, Math.sqrt(deltaX*deltaX + deltaY*deltaY)),true);	//drives to coordinate
-		rightMotor.rotate(convertDistance(radius, Math.sqrt(deltaX*deltaX + deltaY*deltaY)),false);
+		rightMotor.rotate(convertDistance(radius, Math.sqrt(deltaX*deltaX + deltaY*deltaY)),obstacle);
 		Sound.beep();
 		if(obstacle == true) {			//if there is an obstacle, sleep repeatedly for half a second until the obstacle has been passed.
 			while(leftMotor.isMoving()|| rightMotor.isMoving()) {
-				System.out.println("Checking for the ring");			
+				//System.out.println("Checking for the ring");			
 				Lab5.search.look();
 			}
 			

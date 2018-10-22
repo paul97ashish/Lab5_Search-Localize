@@ -37,27 +37,27 @@ private static final float[] [] Meann= {{0.170390332f,0.767597595f,0.617868163f}
 //											{0.584095753f,0.585842632f,0.561801176f},
 //											{ 0.58910641f,0.579596568f,0.563046585f}};
 
-//	public static void main (String [] args) {
-//		//colorSensor.setFloodlight(lejos.robotics.Color.WHITE);
-//		colorValue = colorSensor.getMode("RGB"); 
-//		sampleColor = new float[colorValue.sampleSize()];
-//		while(true) {
-//		Button.waitForAnyPress();
-//		int status;
-//		
-//		do {
-//			status=findMatch( fetch());
-//		}while(status==5);
-//		System.out.println(status);
-//		}
-//	}
-
-	public ColorDetection() {
-		colorSensor.setFloodlight(lejos.robotics.Color.WHITE);
+	public static void main (String [] args) {
+		//colorSensor.setFloodlight(lejos.robotics.Color.WHITE);
 		colorValue = colorSensor.getMode("RGB"); 
 		sampleColor = new float[colorValue.sampleSize()];
+		while(true) {
+		Button.waitForAnyPress();
+		int status;
 		
+		do {
+			status=findMatch( fetch());
+		}while(status==5);
+		System.out.println(status);
+		}
 	}
+
+//	public ColorDetection() {
+//		colorSensor.setFloodlight(lejos.robotics.Color.WHITE);
+//		colorValue = colorSensor.getMode("RGB"); 
+//		sampleColor = new float[colorValue.sampleSize()];
+//		
+//	}
 	public int detect() {
 		int color;
 		do {
@@ -71,7 +71,7 @@ private static final float[] [] Meann= {{0.170390332f,0.767597595f,0.617868163f}
 		return sampleColor;
 	}
 	public static int findMatch(float array[]) {
-		System.out.println(array[0]+ "    "+array[1]+ "    "+array[2]+ "    ");
+	//	System.out.println(array[0]+ "    "+array[1]+ "    "+array[2]+ "    ");
 		float euc=(float)Math.sqrt((Math.pow(array[0], 2)+Math.pow(array[1], 2)+Math.pow(array[2], 2)));
 		float R=array[0]/euc;
 		float G=array[1]/euc;

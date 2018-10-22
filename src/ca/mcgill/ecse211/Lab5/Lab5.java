@@ -24,14 +24,14 @@ public class Lab5 {
 	private static final Port usPort = LocalEV3.get().getPort("S4");
 	private static final TextLCD lcd = LocalEV3.get().getTextLCD();
 	public static final double WHEEL_RAD = 2.2;
-	public static final double TRACK = 15.7;
+	public static final double TRACK = 14.9;
 
 	public static Navigation navigation;
 	
 	public static Localization localization;
 	public static EV3GyroSensor gyro;
 	public static UltrasonicPoller usPoller;
-	private static final double TILE_SIZE=30.48;
+	public static final double TILE_SIZE=30.48;
 	private static int UUX=6;
 	private static int UUY=6;
 	private static int LLX=2;
@@ -60,9 +60,9 @@ public class Lab5 {
 		navigation = new Navigation(); //create an instance of the navigation class
 		float[] usData = new float[usDistance.sampleSize()]; //create a sample array
 		
-	/*	gyro = new EV3GyroSensor(LocalEV3.get().getPort("S3"));
+		gyro = new EV3GyroSensor(LocalEV3.get().getPort("S3"));
 		gyroAngle = gyro.getAngleMode();
-		data = new float[gyroAngle.sampleSize()];*/
+		data = new float[gyroAngle.sampleSize()];
 
 
 
@@ -99,26 +99,27 @@ public class Lab5 {
 		navigation.useGyro = true;
 		navigation.angle = data;
 		navigation.offset =(int) COORDONATES[SC][2];
+		buttonChoice = Button.waitForAnyPress(); 	
 		
 		odometer.setXYT(COORDONATES[SC][0]*TILE_SIZE, COORDONATES[SC][1]*TILE_SIZE, COORDONATES[SC][2]);
 		
 		navigation.travelTo(COORDONATES[SC][0], LLY);
 		navigation.travelTo(LLX, LLY);
 		
-		navigation.obstacle=true;
+	//	navigation.obstacle=true;
 		search=new RingSearch(usPoller, navigation);
 		
 		
 		boolean detected=false;
-		navigation.travelTo(LLX, UUY);
+		navigation.travelTo(LLX, UUY, true);
 		detected=(search.ringValue()==TR);
-		if(!detected)navigation.travelTo(UUX, UUY);
+		if(!detected)navigation.travelTo(UUX, UUY, true);
 		detected=(search.ringValue()==TR);
-		if(!detected)navigation.travelTo(UUX, LLY);
+		if(!detected)navigation.travelTo(UUX, LLY, true);
 		detected=(search.ringValue()==TR);
-		if(!detected)navigation.travelTo(LLX, LLY);
+		if(!detected)navigation.travelTo(LLX, LLY, true);
 		detected=(search.ringValue()==TR);
-		navigation.obstacle=false;
+	//	navigation.obstacle=false;
 		navigation.travelTo(UUX, UUY);
 		
 		while (Button.waitForAnyPress() != Button.ID_ESCAPE);

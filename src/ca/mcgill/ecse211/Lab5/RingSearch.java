@@ -19,7 +19,7 @@ public class RingSearch  {
 	int ringValue = 5;
 
 	public RingSearch(UltrasonicPoller poller, Navigation navig) {
-		System.out.println("RingSerch created");
+		//System.out.println("RingSerch created");
 		SensorMotor.rotate(-90);
 		detect = new ColorDetection();
 		usPoller=poller;
@@ -27,8 +27,8 @@ public class RingSearch  {
 	}
 
 	public void look() {
-		Last = usPoller.getDistance();
-		System.out.println(Last);
+		/*Last = usPoller.getDistance();
+		System.out.println(Last);*/
 		try {
 			Thread.sleep(100);
 		} catch (InterruptedException e) {
@@ -36,17 +36,19 @@ public class RingSearch  {
 			e.printStackTrace();
 		}
 		distance = usPoller.getDistance();
-
-		if ((Last - distance) > 20) {
+		System.out.println(distance);
+		if (distance<50) {
 			leftMotor.stop(true);
 			rightMotor.stop();
 			LastX = Lab5.odometer.getXYT()[0];
 			LastY = Lab5.odometer.getXYT()[1];
 			double TargX = navigation.x;
 			double TargY = navigation.y;
-			if (checkRing()) {
+		//	if (checkRing()) {
+			
 				int distance = usPoller.getDistance();
-				navigation.travelTo(LastX + distance - 10, LastY);
+				System.out.println("rechecked distance :" + distance);
+				navigation.travelTo((LastX + distance - 10)/Lab5.TILE_SIZE, LastY/Lab5.TILE_SIZE);
 				leftMotor.setSpeed(SPEED);
 				rightMotor.setSpeed(SPEED);
 				ringValue = detect.detect();
@@ -71,9 +73,9 @@ public class RingSearch  {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				navigation.travelTo(LastX, LastY);
+				navigation.travelTo(LastX/Lab5.TILE_SIZE, LastY/Lab5.TILE_SIZE);
 				
-			}
+			//}
 			navigation.travelTo(TargX, TargY);
 
 		}

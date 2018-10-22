@@ -62,7 +62,7 @@ public class Localization{
 			}
 			lightSensor.fetchSample(lightData, 0);
 
-			if(lightData[0]<0.25) {				//set the threshold for the line detection 
+			if(lightData[0]<0.30) {				//set the threshold for the line detection 
 				Sound.beep();
 				if(count !=4)
 					array[count++]=Lab5.odometer.getXYT()[2];	//storing the angle it was detected at.
@@ -74,7 +74,7 @@ public class Localization{
 				} catch (InterruptedException e) {
 				}
 				double deltaTx=array[1]-array[3];				//delta angles at second and fourth detected lines
-				double d= 12.8;
+				double d= 13.0;
 				double y = -d*Math.cos(deltaTx*Math.PI/360);	//calculation of y position
 				double deltaTy=array[0]-array[2];				//delta angles at first and third detected lines
 				double x = -d*Math.cos(deltaTy*Math.PI/360);	//calculation of x position
@@ -87,7 +87,10 @@ public class Localization{
 				rightMotor.rotate(convertAngle(radius, track , theta+correctionAngle),false);
 				leftMotor.rotate(convertDistance(radius, distance),true);							//moves to the point
 				rightMotor.rotate(convertDistance(radius, distance),false);	
-				navigation.turnTo(0);																//turn back forward
+			//	Lab5.odometer.setTheta(theta);
+				leftMotor.rotate(convertAngle(radius, track , theta+45),true);		//turns to the origin point	
+				rightMotor.rotate(-convertAngle(radius, track , theta+45),false);
+			//	navigation.turnTo(0);																//turn back forward
 		
 
 				count++;
