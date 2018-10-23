@@ -31,18 +31,18 @@ public class Lab5 {
 	public static Localization localization;
 	public static EV3GyroSensor gyro;
 	public static UltrasonicPoller usPoller;
-	public static final double TILE_SIZE=30.48;
-	private static int UUX=6;
-	private static int UUY=6;
-	private static int LLX=2;
-	private static int LLY=2;
+	public static final double TILE_SIZE=31.48;
+	private static int UUX=7;
+	private static int UUY=7;
+	private static int LLX=1;
+	private static int LLY=1;
 	private static int SC=0;
 	public static int TR=2;
 	private static final double[][] COORDONATES = { { 1, 1, 0 }, { 7 , 1, 270 },
 			{ 7 , 7 , 180 }, { 1, 7 , 90 } };
 	public static Odometer odometer;
 	public static float[] data;
-	public static SampleProvider gyroAngle;
+
 	public static RingSearch search;
 	
 	public static void main(String[] args) throws OdometerExceptions {
@@ -54,16 +54,12 @@ public class Lab5 {
 
 		// implementation
 	
+		@SuppressWarnings("resource")
 		SensorModes usSensor = new EV3UltrasonicSensor(usPort); // usSensor is the instance
 		SampleProvider usDistance = usSensor.getMode("Distance"); // usDistance provides samples from
 		// this instance
 		navigation = new Navigation(); //create an instance of the navigation class
 		float[] usData = new float[usDistance.sampleSize()]; //create a sample array
-		
-		gyro = new EV3GyroSensor(LocalEV3.get().getPort("S3"));
-		gyroAngle = gyro.getAngleMode();
-		data = new float[gyroAngle.sampleSize()];
-
 
 
 		// clear the display
@@ -89,16 +85,13 @@ public class Lab5 {
 		
 		// Start correction if right button was pressed
 		if (buttonChoice == Button.ID_LEFT) { // if the user selects left run falling edge localization
-			localization = new Localization(true,gyro);
+			localization = new Localization(true);
 			localization.run();
 		}else {
-			localization = new Localization(false,gyro); // else run the rising edge one
+			localization = new Localization(false); // else run the rising edge one
 			localization.run();
 		}
-		navigation.gyro = gyro;
-		navigation.useGyro = true;
-		navigation.angle = data;
-		navigation.offset =(int) COORDONATES[SC][2];
+	
 		buttonChoice = Button.waitForAnyPress(); 	
 		
 		odometer.setXYT(COORDONATES[SC][0]*TILE_SIZE, COORDONATES[SC][1]*TILE_SIZE, COORDONATES[SC][2]);
@@ -113,12 +106,31 @@ public class Lab5 {
 		boolean detected=false;
 		navigation.travelTo(LLX, UUY, true);
 		detected=(search.ringValue()==TR);
-		if(!detected)navigation.travelTo(UUX, UUY, true);
+		localization.lightLoc();
+		double[] rounded=round(odometer.getXYT()[0],odometer.getXYT()[1]);
+		odometer.setXYT(rounded[0], rounded[1], 90);
+		if(!detected) {
+			navigation.travelTo(UUX, UUY, true);
+		
 		detected=(search.ringValue()==TR);
-		if(!detected)navigation.travelTo(UUX, LLY, true);
+		localization.lightLoc();
+		rounded=round(odometer.getXYT()[0],odometer.getXYT()[1]);
+		odometer.setXYT(rounded[0], rounded[1], 180);
+		}
+		
+		if(!detected) {navigation.travelTo(UUX, LLY, true);
 		detected=(search.ringValue()==TR);
-		if(!detected)navigation.travelTo(LLX, LLY, true);
+		
+		localization.lightLoc();
+		rounded=round(odometer.getXYT()[0],odometer.getXYT()[1]);
+		odometer.setXYT(rounded[0], rounded[1], 270);
+		}
+		if(!detected) {navigation.travelTo(LLX, LLY, true);
 		detected=(search.ringValue()==TR);
+		localization.lightLoc();
+		rounded=round(odometer.getXYT()[0],odometer.getXYT()[1]);
+		odometer.setXYT(rounded[0], rounded[1], 0);
+		}
 	//	navigation.obstacle=false;
 		navigation.travelTo(UUX, UUY);
 		
@@ -126,6 +138,25 @@ public class Lab5 {
 		System.exit(0);
 
 
+	}
+	public static double [] round(double x, double y){
+		double X=x/TILE_SIZE;
+		double Y=y/TILE_SIZE;
+		double errorx= X-(int)X;
+		if(errorx>=0.5) {
+			X=(int)X+1;
+		}else {
+			X=(int)X;
+		}
+		double errory=Y-(int)Y;
+		if(errory>=0.5) {
+			Y=(int)Y+1;
+		}else {
+			Y=(int)Y;
+		}
+		
+		return new double[]{X*TILE_SIZE,Y*TILE_SIZE};	
+		
 	}
 
 

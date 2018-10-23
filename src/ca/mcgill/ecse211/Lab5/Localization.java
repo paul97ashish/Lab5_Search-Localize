@@ -24,19 +24,21 @@ public class Localization{
 	private static EV3LargeRegulatedMotor rightMotor = Lab5.getRightMotor();
 	private static OdometerData odo;
 	boolean nextStep=false;
-	private static final EV3ColorSensor colorSensor=new EV3ColorSensor(LocalEV3.get().getPort("S2"));
-	SampleProvider lightSensor=colorSensor.getMode("Red");
-	float [] lightData=new float [lightSensor.sampleSize()];
+	private static final EV3ColorSensor colorSensorR=new EV3ColorSensor(LocalEV3.get().getPort("S2"));
+	SampleProvider lightSensorR=colorSensorR.getMode("Red");
+	float [] lightDataR=new float [lightSensorR.sampleSize()];
+	private static final EV3ColorSensor colorSensorL=new EV3ColorSensor(LocalEV3.get().getPort("S3"));
+	SampleProvider lightSensorL=colorSensorL.getMode("Red");
+	float [] lightDataL=new float [lightSensorL.sampleSize()];
 	private double currentPosition[];
 	private double radius = Lab5.getRadius();
 	private double track = Lab5.getTrack();
 	private double array[] = new double[4];
-	private EV3GyroSensor gyro;
 	
+	private static final double colorthr=0.15;
 	
-	public Localization(boolean fallingEdge, EV3GyroSensor gyro){
+	public Localization(boolean fallingEdge){
 		this.fallingEdge=fallingEdge; //  records if the user inputed falling or rising edge detection
-		this.gyro = gyro;
 	}
 	
 	/**This method combines calculations from the odometry and navigation class with readings from an ultrasonic sensor and light sensor in order to correctly
@@ -47,57 +49,118 @@ public class Localization{
 	public void run(){
 		int count =0;
 		angleLocalization();
-		nextStep =true;
-		leftMotor.rotate(300,true);
+		try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		lightLoc();
+		leftMotor.setSpeed(100);
+		rightMotor.setSpeed(100);
+		leftMotor.rotate(-convertAngle(radius, track , 90),true);		//turns to the origin point	
+		rightMotor.rotate(convertAngle(radius, track , 90),false);
+		/*leftMotor.rotate(300,true);
 		rightMotor.rotate(300,false);
 		
 		
-		navigation.turn360(true);
-		while(nextStep) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			lightSensor.fetchSample(lightData, 0);
-
-			if(lightData[0]<0.30) {				//set the threshold for the line detection 
-				Sound.beep();
-				if(count !=4)
-					array[count++]=Lab5.odometer.getXYT()[2];	//storing the angle it was detected at.
-			}
+		navigation.turn360(true);*/
+//		while(nextStep) {
+//			try {
+//				Thread.sleep(100);
+//			} catch (InterruptedException e1) {
+//				// TODO Auto-generated catch block
+//				e1.printStackTrace();
+//			}
+//			lightSensor.fetchSample(lightData, 0);
+//
+//			if(lightData[0]<0.30) {				//set the threshold for the line detection 
+//				Sound.beep();
+//				if(count !=4)
+//					array[count++]=Lab5.odometer.getXYT()[2];	//storing the angle it was detected at.
+//			}
+//			
+//			if(count == 4) {
+//				try {
+//					Thread.sleep(1500);
+//				} catch (InterruptedException e) {
+//				}
+//				double deltaTx=array[1]-array[3];				//delta angles at second and fourth detected lines
+//				double d= 14.0;
+//				double y = -d*Math.cos(deltaTx*Math.PI/360);	//calculation of y position
+//				double deltaTy=array[0]-array[2];				//delta angles at first and third detected lines
+//				double x = -d*Math.cos(deltaTy*Math.PI/360);	//calculation of x position
+//				double theta = Math.atan(x/y)*180/Math.PI;		
+//				double distance = Math.sqrt(x*x+y*y);
+//				double correctionAngle = array[0]-(deltaTy/2)-270;		
+////				System.out.println("x= "+x+" y= "+y+" correction= "+(correctionAngle));
+//				Sound.beep();
+//				leftMotor.rotate(-convertAngle(radius, track , theta+correctionAngle),true);		//turns to the origin point	
+//				rightMotor.rotate(convertAngle(radius, track , theta+correctionAngle),false);
+//				leftMotor.rotate(convertDistance(radius, distance),true);							//moves to the point
+//				rightMotor.rotate(convertDistance(radius, distance),false);	
+//			//	Lab5.odometer.setTheta(theta);
+//				leftMotor.rotate(-convertAngle(radius, track , theta+110),true);		//turns to the origin point	
+//				rightMotor.rotate(convertAngle(radius, track , theta+110),false);
+//			//	navigation.turnTo(0);																//turn back forward
+//				count++;
+//				gyro.reset();
+//				break;
+//				
+//			}
 			
-			if(count == 4) {
-				try {
-					Thread.sleep(1500);
-				} catch (InterruptedException e) {
-				}
-				double deltaTx=array[1]-array[3];				//delta angles at second and fourth detected lines
-				double d= 13.0;
-				double y = -d*Math.cos(deltaTx*Math.PI/360);	//calculation of y position
-				double deltaTy=array[0]-array[2];				//delta angles at first and third detected lines
-				double x = -d*Math.cos(deltaTy*Math.PI/360);	//calculation of x position
-				double theta = Math.atan(x/y)*180/Math.PI;		
-				double distance = Math.sqrt(x*x+y*y);
-				double correctionAngle = array[0]-(deltaTy/2)-270;		
-//				System.out.println("x= "+x+" y= "+y+" correction= "+(correctionAngle));
+					
+		}
+	
+	public void lightLoc() {
+		linedetect();
+		leftMotor.setSpeed(100);
+		rightMotor.setSpeed(100);
+		leftMotor.rotate(convertAngle(radius, track , 90),true);		//turns to the origin point	
+		rightMotor.rotate(-convertAngle(radius, track , 90),false);
+		
+		linedetect();
+		
+		
+		
+	}
+	public void linedetect() {
+		leftMotor.setSpeed(50);
+		rightMotor.setSpeed(50);
+		leftMotor.forward();
+		rightMotor.forward();
+		while (true) {
+			lightSensorL.fetchSample(lightDataL, 0);
+			lightSensorR.fetchSample(lightDataR, 0);
+			if(lightDataL[0]<colorthr) {
 				Sound.beep();
-				leftMotor.rotate(-convertAngle(radius, track , theta+correctionAngle),true);		//turns to the origin point	
-				rightMotor.rotate(convertAngle(radius, track , theta+correctionAngle),false);
-				leftMotor.rotate(convertDistance(radius, distance),true);							//moves to the point
-				rightMotor.rotate(convertDistance(radius, distance),false);	
-			//	Lab5.odometer.setTheta(theta);
-				leftMotor.rotate(-convertAngle(radius, track , theta+45),true);		//turns to the origin point	
-				rightMotor.rotate(convertAngle(radius, track , theta+45),false);
-			//	navigation.turnTo(0);																//turn back forward
-				count++;
-				gyro.reset();
+				leftMotor.setSpeed(1);
+				leftMotor.stop();
+				lightSensorR.fetchSample(lightDataR, 0);
+				while(lightDataR[0]>colorthr) {
+				
+					lightSensorR.fetchSample(lightDataR, 0);
+				}
+				Sound.beep();
+				rightMotor.setSpeed(1);
+				rightMotor.stop();
 				break;
 				
 			}
-			
-						
+			if(lightDataR[0]<colorthr) {
+				Sound.beep();
+				rightMotor.setSpeed(1);
+				rightMotor.stop();
+				lightSensorL.fetchSample(lightDataL, 0);
+				while(lightDataL[0]>colorthr) {
+					lightSensorL.fetchSample(lightDataL, 0);
+				}
+				Sound.beep();
+				leftMotor.setSpeed(1);
+				leftMotor.stop();
+				break;
+			}
 		}
 	}
 	/**This method reads distance values from the ultrasonic sensor and detects rapid changes in the distances during movement. Depending

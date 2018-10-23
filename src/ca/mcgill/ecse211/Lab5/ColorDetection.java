@@ -68,7 +68,7 @@ private static final float[] [] Meann= {{0.170390332f,0.767597595f,0.617868163f}
 		return sampleColor;
 	}
 	public static int findMatch(float array[]) {
-		System.out.println(array[0]+ "    "+array[1]+ "    "+array[2]+ "    ");
+		//System.out.println(array[0]+ "    "+array[1]+ "    "+array[2]+ "    ");
 		float euc=(float)Math.sqrt((Math.pow(array[0], 2)+Math.pow(array[1], 2)+Math.pow(array[2], 2)));
 		float R=array[0]/euc;
 		float G=array[1]/euc;

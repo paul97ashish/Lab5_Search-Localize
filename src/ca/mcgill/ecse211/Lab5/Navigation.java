@@ -25,12 +25,10 @@ public class Navigation {
 	private static EV3LargeRegulatedMotor leftMotor = Lab5.getLeftMotor();
 	private static EV3LargeRegulatedMotor rightMotor = Lab5.getRightMotor();
 	boolean finished360 =false;
-	boolean useGyro = false;
+	
 	public double x;
 	public double y;
-	static public EV3GyroSensor gyro;
-	public float angle[];
-	public int offset;
+	
 
 
 	/** takes input of destination coordinates and calculates angle between current position and 
@@ -39,12 +37,7 @@ public class Navigation {
 		travelTo(x,y,false);
 	}
 	void travelTo(double x, double y, boolean obstacle) {	
-	/*	if(useGyro) {
-			gyro.fetchSample(angle, offset);
-			while(angle[0]<0)
-				angle[0]+=360;
-			Lab5.odometryDisplay.odo.setTheta(angle[0]%360);
-		}*/
+		
 		this.x=x;
 		this.y=y;
 		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] {leftMotor, rightMotor}) {		//initializes right and left motor.
