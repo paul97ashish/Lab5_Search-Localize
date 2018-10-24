@@ -22,7 +22,7 @@ public class Localization{
 	private static boolean stopped =false; 
 	private static EV3LargeRegulatedMotor leftMotor = Lab5.getLeftMotor();
 	private static EV3LargeRegulatedMotor rightMotor = Lab5.getRightMotor();
-	private static OdometerData odo;
+//	private static OdometerData odo;
 	boolean nextStep=false;
 	private static final EV3ColorSensor colorSensorR=new EV3ColorSensor(LocalEV3.get().getPort("S2"));
 	SampleProvider lightSensorR=colorSensorR.getMode("Red");
@@ -35,7 +35,7 @@ public class Localization{
 	private double track = Lab5.getTrack();
 	private double array[] = new double[4];
 	
-	private static final double colorthr=0.15;
+	private static final double colorthr=0.155;
 	
 	public Localization(boolean fallingEdge){
 		this.fallingEdge=fallingEdge; //  records if the user inputed falling or rising edge detection
@@ -138,13 +138,25 @@ public class Localization{
 				leftMotor.setSpeed(1);
 				leftMotor.stop();
 				lightSensorR.fetchSample(lightDataR, 0);
-				while(lightDataR[0]>colorthr) {
-				
+				double lastTheta=Lab5.odometer.getXYT()[2];
+				double theta=Lab5.odometer.getXYT()[2];
+				while(lightDataR[0]>colorthr && Math.abs(theta-lastTheta)<30) {
 					lightSensorR.fetchSample(lightDataR, 0);
+					theta=Lab5.odometer.getXYT()[2];
 				}
 				Sound.beep();
 				rightMotor.setSpeed(1);
 				rightMotor.stop();
+				theta-=lastTheta;
+//				if (Math.abs(theta)>30) {
+//					turnBy(-(theta+90));
+//					move(20);
+//					turnBy(90);
+//					move(-10);
+//					linedetect();
+//					
+//				}
+				
 				break;
 				
 			}
@@ -153,15 +165,43 @@ public class Localization{
 				rightMotor.setSpeed(1);
 				rightMotor.stop();
 				lightSensorL.fetchSample(lightDataL, 0);
-				while(lightDataL[0]>colorthr) {
+				double lastTheta=Lab5.odometer.getXYT()[2];
+				double theta=Lab5.odometer.getXYT()[2];
+				while(lightDataL[0]>colorthr && Math.abs(theta-lastTheta)<30) {
 					lightSensorL.fetchSample(lightDataL, 0);
+					theta=Lab5.odometer.getXYT()[2];
 				}
 				Sound.beep();
 				leftMotor.setSpeed(1);
 				leftMotor.stop();
+				theta-=lastTheta;
+				if (Math.abs(theta)>30) {
+					turnBy(-(theta+90));
+					move(10);
+					turnBy(90);
+					move(-10);
+					linedetect();
+					
+				}
+				
 				break;
 			}
+		
 		}
+		move(-3);
+	}
+	public void move(double distance) {
+		leftMotor.setSpeed(200);
+		rightMotor.setSpeed(200);
+		leftMotor.rotate(convertDistance(radius, distance), true);
+		rightMotor.rotate(convertDistance(radius, distance), false);
+	}
+
+	private void turnBy(double theta) {
+		leftMotor.setSpeed(100);
+		rightMotor.setSpeed(100);
+		leftMotor.rotate(convertAngle(radius, Lab5.TRACK, theta), true); // turns to the origin point
+		rightMotor.rotate(-convertAngle(radius, Lab5.TRACK, theta), false);
 	}
 	/**This method reads distance values from the ultrasonic sensor and detects rapid changes in the distances during movement. Depending
 	 * on the direction of the change in value, it is considered a rising or falling edge. Two edges are detected during the sequence

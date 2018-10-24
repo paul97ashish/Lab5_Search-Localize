@@ -1,16 +1,18 @@
-package ca.mcgill.ecse211.attempt;
+package ca.mcgill.ecse211.Lab5;
 
 import lejos.hardware.Button;
 import lejos.hardware.ev3.LocalEV3;
+import lejos.hardware.lcd.TextLCD;
 import lejos.hardware.port.Port;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.robotics.SampleProvider;
 
-public class ColorDetection {
+public class ColorDetectionNormal {
 	static Port portColor = LocalEV3.get().getPort("S1");
 	static EV3ColorSensor colorSensor = new EV3ColorSensor(portColor);
 	static float[]sampleColor;
 	static SampleProvider colorValue;
+	private static final TextLCD lcd = LocalEV3.get().getTextLCD();
 	// Blue, Green, Yellow, Orange
 //	private static final float[] [] Meann= {{0.1385345f,0.680827f,0.7192239f},
 //											{0.4176605f, 0.8939716f,0.1624025f},
@@ -43,12 +45,17 @@ private static final float[] [] Meann= {{0.170390332f,0.767597595f,0.617868163f}
 		sampleColor = new float[colorValue.sampleSize()];
 		while(true) {
 		Button.waitForAnyPress();
+		lcd.clear();
 		int status;
 		
 		do {
 			status=findMatch( fetch());
 		}while(status==5);
-		System.out.println(status);
+		
+		String[] str= {"Blue", "Green", "Yellow", "Orange"};
+		lcd.drawString("Object Detected ", 0, 0);
+		lcd.drawString(str[status], 0, 1);
+		
 		}
 	}
 
@@ -77,9 +84,9 @@ private static final float[] [] Meann= {{0.170390332f,0.767597595f,0.617868163f}
 		float G=array[1]/euc;
 		float B=array[2]/euc;
 		for (int i=0; i<4; i++) {
-			float differenceR=Math.abs(R-Meann[i][0])/0.1f;
-			float differenceG=Math.abs(G-Meann[i][1])/0.1f;
-			float differenceB=Math.abs(B-Meann[i][2])/0.1f;
+			float differenceR=Math.abs(R-Meann[i][0])/0.05f;
+			float differenceG=Math.abs(G-Meann[i][1])/0.05f;
+			float differenceB=Math.abs(B-Meann[i][2])/0.05f;
 			if (differenceR<1.0  &&differenceG<1.0 && differenceB<1.0) {
 				return i;
 			}

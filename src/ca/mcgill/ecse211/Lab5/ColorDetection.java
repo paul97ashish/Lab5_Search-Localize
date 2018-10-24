@@ -74,9 +74,9 @@ private static final float[] [] Meann= {{0.170390332f,0.767597595f,0.617868163f}
 		float G=array[1]/euc;
 		float B=array[2]/euc;
 		for (int i=0; i<4; i++) {
-			float differenceR=Math.abs(R-Meann[i][0])/0.1f;
-			float differenceG=Math.abs(G-Meann[i][1])/0.1f;
-			float differenceB=Math.abs(B-Meann[i][2])/0.1f;
+			float differenceR=Math.abs(R-Meann[i][0])/0.05f;
+			float differenceG=Math.abs(G-Meann[i][1])/0.05f;
+			float differenceB=Math.abs(B-Meann[i][2])/0.05f;
 			if (differenceR<1.0  &&differenceG<1.0 && differenceB<1.0) {
 				return i;
 			}

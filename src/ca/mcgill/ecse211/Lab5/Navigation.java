@@ -74,9 +74,30 @@ public class Navigation {
 		rightMotor.rotate(convertDistance(radius, Math.sqrt(deltaX*deltaX + deltaY*deltaY)),obstacle);
 		Sound.beep();
 		if(obstacle == true) {			//if there is an obstacle, sleep repeatedly for half a second until the obstacle has been passed.
+			int ring;
 			while(leftMotor.isMoving()|| rightMotor.isMoving()) {
-				//System.out.println("Checking for the ring");			
+				//System.out.println("Checking for the ring");
+				try {
+					Thread.sleep(40);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				Lab5.search.look();
+				ring=Lab5.search.detect.detect();
+			
+				if (ring==(Lab5.TR-1)) {
+					Lab5.search.ringValue=ring;
+					Sound.beep();
+					//Avoid(); 
+					travelTo(Lab5.UUX,Lab5.UUY);
+					
+				}else if (ring!=5){
+					Sound.beep();
+					Sound.beep();
+					Avoid();
+					travelTo(x,y,true);
+				}
 			}
 			
 			//after the obstacle has been passed, restart the travelTo function recursively to resume desired path.
@@ -86,7 +107,29 @@ public class Navigation {
 
 	/** adjusts calculated angle, adds or subtracts 2pi to achieve the smallest possible angle when turning to
 	 *  coordinate and then turns towards calculated angle relative to the board**/
-	
+	void Avoid() {
+		move(-5);
+		turnBy(-90);
+		move(25);
+		turnBy(90);
+		move(45);
+		turnBy(90);
+		move(25);
+		turnBy(-90);
+	}
+	private void move(double distance) {
+		leftMotor.setSpeed(200);
+		rightMotor.setSpeed(200);
+		leftMotor.rotate(convertDistance(radius, distance), true);
+		rightMotor.rotate(convertDistance(radius, distance), false);
+	}
+
+	private void turnBy(double theta) {
+		leftMotor.setSpeed(100);
+		rightMotor.setSpeed(100);
+		leftMotor.rotate(convertAngle(radius, Lab5.TRACK, theta), true); // turns to the origin point
+		rightMotor.rotate(-convertAngle(radius, Lab5.TRACK, theta), false);
+	}
 	void turnTo(double theta){	
 		current= Lab5.odometer.getXYT();
 		double deltaT= theta- Math.toRadians(current[2]%360);
