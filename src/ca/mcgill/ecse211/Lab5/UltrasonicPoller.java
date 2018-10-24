@@ -8,6 +8,8 @@ import lejos.robotics.SampleProvider;
  * methods operate in about 20mS, and that the thread sleeps for 50 mS at the end of each loop, then
  * one cycle through the loop is approximately 70 mS. This corresponds to a sampling rate of 1/70mS
  * or about 14 Hz.
+ * This class is used to get data from the ultrasonic sensor
+ * @modified Zakaria Essadaoui
  */
 public class UltrasonicPoller  {
   private SampleProvider us;
@@ -17,17 +19,21 @@ public class UltrasonicPoller  {
   private int filterControl;
   
   private int distance;
+  /**
+   * Constructor for the class
+   * @param us
+   * @param usData
+   */
   public UltrasonicPoller(SampleProvider us, float[] usData) {
     this.us = us;
   
     this.usData = usData;
   }
 
-  /*
-   * Sensors now return floats using a uniform protocol. Need to convert US result to an integer
-   * [0,255] (non-Javadoc)
-   * 
-   * @see java.lang.Thread#run()
+  /**
+   * This method return the distance from the sensor
+   * range [0,255]
+   * @return distance
    */
   
   public int getDistance() {
@@ -40,7 +46,11 @@ public class UltrasonicPoller  {
      }
      return this.distance;
   }
-  
+  /**
+   * This is our filter for making sure the distance is bigger than 255
+   * @param distance
+   * @return
+   */
   public int process(int distance) {
 	  if (distance >= 255 && filterControl < FILTER_OUT) {
 			// bad value, do not set the distance var, however do increment the

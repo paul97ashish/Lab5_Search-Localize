@@ -11,10 +11,11 @@ import lejos.hardware.sensor.EV3GyroSensor;
  * calculations on the info to solve for needed variables.
  * @author Max Brodeur
  * @author Carl ElKhoury
+ * @author Zakaria Essadaoui
  **/
 
 public class Navigation {
-
+	// Setting required fields
 	private static final int FORWARD_SPEED = 250;
 	private static final int ROTATE_SPEED = 200;
 	private static final double TILE_SIZE = 30.48;
@@ -36,25 +37,30 @@ public class Navigation {
 	public double y;
 
 	/**
-	 * takes input of destination coordinates and calculates angle between current
-	 * position and destination. Also calculates distance needed to travel and
-	 * commands robot to travel the distance.
-	 **/
+	 * This method makes the robot travel to a (x,y) without checking for a ring
+	 * @param x
+	 * @param y
+	 * @return void
+	 */
 	void travelTo(double x, double y) {
 		travelTo(x, y, false);
 	}
-
+	/**This is the overloaded travel to method
+	 * This method makes the robot travel to a (x,y) while checking for a ring
+	 * @param x
+	 * @param y
+	 * @return void
+	 */
 	void travelTo(double x, double y, boolean obstacle) {
 
 		this.x = x;
 		this.y = y;
-		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] { leftMotor, rightMotor }) { // initializes
-																										// right and
-																										// left motor.
+		// settign motor acceleration
+		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] { leftMotor, rightMotor }) { 																						// left motor.
 			motor.stop();
 			motor.setAcceleration(3000);
 		}
-
+		
 		current = Lab5.odometer.getXYT(); // gets current X Y and Theta values
 		deltaX = x * TILE_SIZE - current[0]; // deltaX or deltaY is the difference between where you want to go and
 												// where you are currently.
@@ -87,9 +93,10 @@ public class Navigation {
 																										// coordinate
 		rightMotor.rotate(convertDistance(radius, Math.sqrt(deltaX * deltaX + deltaY * deltaY)), obstacle);
 		Sound.beep();
-		if (obstacle == true) { // if there is an obstacle, sleep repeatedly for half a second until the
-								// obstacle has been passed.
+		// If we wan't to check for rings
+		if (obstacle == true) { 
 			int ring;
+			// checks if there is a ring in front of the robot or in the search area
 			while (leftMotor.isMoving() || rightMotor.isMoving()) {
 				// System.out.println("Checking for the ring");
 				try {
@@ -98,9 +105,15 @@ public class Navigation {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				// check for ring the search are
 				Lab5.search.look();
+				// check for rings in front of the robot
 				ring = Lab5.search.detect.detect();
-
+			    /*
+			     * If the right ring is found
+			     * Beep andGo to the upper right
+			     * Otherwise, Beep twice, Avoid it and finished the course
+			     */
 				if (ring == (Lab5.TR - 1)) {
 					Lab5.search.ringValue = ring;
 					Sound.beep();
@@ -123,10 +136,9 @@ public class Navigation {
 	}
 
 	/**
-	 * adjusts calculated angle, adds or subtracts 2pi to achieve the smallest
-	 * possible angle when turning to coordinate and then turns towards calculated
-	 * angle relative to the board
-	 **/
+	 * This method makes the robot avoid the ring in front of it
+	 * @return void
+	 */
 	void Avoid() {
 		move(-5);
 		turnBy(-90);
@@ -137,21 +149,32 @@ public class Navigation {
 		move(25);
 		turnBy(-90);
 	}
-
+	/**
+	 * This method makes the robot move by the distance that was passed to it
+	 * @param distance to move
+	 * @return void
+	 */
 	private void move(double distance) {
 		leftMotor.setSpeed(200);
 		rightMotor.setSpeed(200);
 		leftMotor.rotate(convertDistance(radius, distance), true);
 		rightMotor.rotate(convertDistance(radius, distance), false);
 	}
-
+	/**
+	 * This method makes the robot turn (clockwise) by the angle that was passed to it
+	 * @param theta to turn
+	 * @return void
+	 */
 	private void turnBy(double theta) {
 		leftMotor.setSpeed(100);
 		rightMotor.setSpeed(100);
 		leftMotor.rotate(convertAngle(radius, Lab5.TRACK, theta), true); // turns to the origin point
 		rightMotor.rotate(-convertAngle(radius, Lab5.TRACK, theta), false);
 	}
-
+	/**
+	 * This method make the robot turn to a certain angle with a minimal angle
+	 * @param theta
+	 */
 	void turnTo(double theta) {
 		current = Lab5.odometer.getXYT();
 		double deltaT = theta - Math.toRadians(current[2] % 360);
@@ -184,15 +207,31 @@ public class Navigation {
 		leftMotor.rotate(convertAngle(radius, track, angle), true);
 		rightMotor.rotate(-convertAngle(radius, track, angle), true);
 	}
-
+	/**
+	 * This method return weither the robot is navigating
+	 * @return boolean
+	 */
 	boolean isNavigating() { // boolean created to indicate that travelTo() is currently running.
 		return stat;
 	}
-
+	/**
+	 * This method calculate the angle that must be passed to the motor 
+	 * using the radius of the wheel and the distance we want the robot to cross
+	 * @param radius
+	 * @param distance
+	 * @return	corresponding distance
+	 */
 	private static int convertDistance(double radius, double distance) { // converts distance to wheel rotations
 		return (int) ((180.0 * distance) / (Math.PI * radius));
 	}
-
+	/**
+	 * This method calculate the angle that the motor must turn 
+	 * in order for the robot to turn by an certain angle
+	 * @param radius
+	 * @param width
+	 * @param angle
+	 * @return Angle by which the wheels must turn
+	 */
 	private static int convertAngle(double radius, double width, double angle) { // converts angle to radians for degree
 																					// rotation
 		return convertDistance(radius, Math.PI * width * angle / 360.0);

@@ -13,7 +13,13 @@ import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.hardware.sensor.SensorModes;
 import lejos.robotics.Gyroscope;
 import lejos.robotics.SampleProvider;
-
+/**
+ * This is the main class
+ * It is used to create all the thread and calling the appropriate methods
+ * @author Zakaria Essadaoui
+ * @author Carl ElKhoury
+ *
+ */
 public class Lab5 {
 	// Motor Objects, and Robot related parameters
 	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
@@ -26,9 +32,9 @@ public class Lab5 {
 	public static Navigation navigation;
 
 	public static Localization localization;
-	public static EV3GyroSensor gyro;
 	public static UltrasonicPoller usPoller;
-	public static final double TILE_SIZE = 31.48;
+	public static final double TILE_SIZE = 30.48;
+	// creating ring related fields
 	public static int UUX = 7;
 	public static int UUY = 7;
 	private static int LLX = 2;
@@ -74,7 +80,7 @@ public class Lab5 {
 		odoThread.start();
 		// create an ultrasonic poler
 		usPoller = new UltrasonicPoller(usDistance, usData);
-		// start our localization routin
+		// start our localization routine
 		localization = new Localization(true);
 		localization.run();
 		
@@ -176,20 +182,32 @@ public class Lab5 {
 		return new double[] { X * TILE_SIZE, Y * TILE_SIZE, ret };
 
 	}
-
+	/**
+	 * Getter method
+	 * @return o
+	 */
 	public static EV3LargeRegulatedMotor getLeftMotor() { // creating public methods to allow for calling of motors and
 															// key values in other classes
 		return leftMotor;
 	}
-
+	/**
+	 * Getter method
+	 * @return rightMotor
+	 */
 	public static EV3LargeRegulatedMotor getRightMotor() {
 		return rightMotor;
 	}
-
+	/**
+	 * Getter method
+	 * @return radius of the wheel
+	 */
 	public static double getRadius() {
 		return WHEEL_RAD;
 	}
-
+	/**
+	 * Getter method
+	 * @return the track
+	 */
 	public static double getTrack() {
 		return TRACK;
 	}

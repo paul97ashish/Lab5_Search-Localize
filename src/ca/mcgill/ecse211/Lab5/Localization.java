@@ -43,16 +43,18 @@ public class Localization{
 	private double array[] = new double[4];
 	
 	private static final double colorthr=0.155;
-	
+	/**
+	 * Constructor of the localization 
+	 * @param fallingEdge
+	 */
 	public Localization(boolean fallingEdge){
 		this.fallingEdge=fallingEdge; //  records if the user inputed falling or rising edge detection
 	}
 	
-	/**This method combines calculations from the odometry and navigation class with readings from an ultrasonic sensor and light sensor in order to correctly
-	 * position itself at the relative grid origin no matter the start position. It first uses the US to orient itself facing 0 degrees and next moves forward 
-	 * and performs a 360 degree turn while detecting four instances of grid lines and storing the current theta when detected. Those stored angles are then 
-	 * used to accurately locate the current position of the robot and move to the origin.**/
 
+	/**
+	 * The run method performs the localization routine one after the other
+	 */
 	public void run(){
 		
 		angleLocalization();
@@ -64,10 +66,7 @@ public class Localization{
 		}
 		
 		lightLoc();
-		leftMotor.setSpeed(100);
-		rightMotor.setSpeed(100);
-		leftMotor.rotate(-convertAngle(radius, track , 90),true);			
-		rightMotor.rotate(convertAngle(radius, track , 90),false);		
+		turnBy(-90);
 		}
 	
 	/**
@@ -119,14 +118,14 @@ public class Localization{
 				rightMotor.setSpeed(1);
 				rightMotor.stop();
 				theta-=lastTheta;
-//				if (Math.abs(theta)>30) {
-//					turnBy(-(theta+90));
-//					move(20);
-//					turnBy(90);
-//					move(-10);
-//					linedetect();
-//					
-//				}
+				if (Math.abs(theta)>30) {
+					turnBy(-(theta+90));
+					move(20);
+					turnBy(90);
+					move(-10);
+					linedetect();
+					
+				}
 				
 				break;
 				
