@@ -4,7 +4,11 @@ import lejos.hardware.Sound;
 import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.hardware.motor.EV3MediumRegulatedMotor;
-
+/**
+ * 
+ * @author Zakaria
+ *
+ */
 public class RingSearch {
 	private static final EV3MediumRegulatedMotor SensorMotor = new EV3MediumRegulatedMotor(LocalEV3.get().getPort("D"));
 	private static EV3LargeRegulatedMotor leftMotor = Lab5.getLeftMotor();

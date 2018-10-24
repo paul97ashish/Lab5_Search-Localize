@@ -10,9 +10,15 @@
 
 package ca.mcgill.ecse211.odometer;
 
-import ca.mcgill.ecse211.Lab5.Lab5;
-import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
+import lejos.hardware.motor.EV3LargeRegulatedMotor;
+/**
+ * This is our odometer class
+ * We use it to keep track of our position and orientation in the grid
+ * @author Carl El-Khoury
+ * @author Max Brodeur
+ *
+ */
 public class Odometer extends OdometerData implements Runnable {
 
   private OdometerData odoData;

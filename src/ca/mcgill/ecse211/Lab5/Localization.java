@@ -11,8 +11,15 @@ import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.EV3GyroSensor;
 import lejos.robotics.Gyroscope;
 import lejos.robotics.SampleProvider;
-
+/**
+ * This class is responsible for the ultrasonic and light Localization
+ * @author Max Brodeur
+ * @author Carl ElKhoury
+ * @author Zakaria Essadaoui
+ *
+ */
 public class Localization{
+	// setting fiels and variables that will be needed
 	public static Navigation navigation = Lab5.navigation;
 	public static boolean reached=false;
 	public static boolean fallingEdge;
@@ -22,8 +29,8 @@ public class Localization{
 	private static boolean stopped =false; 
 	private static EV3LargeRegulatedMotor leftMotor = Lab5.getLeftMotor();
 	private static EV3LargeRegulatedMotor rightMotor = Lab5.getRightMotor();
-//	private static OdometerData odo;
 	boolean nextStep=false;
+	// setting up the right and left light sensors
 	private static final EV3ColorSensor colorSensorR=new EV3ColorSensor(LocalEV3.get().getPort("S2"));
 	SampleProvider lightSensorR=colorSensorR.getMode("Red");
 	float [] lightDataR=new float [lightSensorR.sampleSize()];
@@ -47,7 +54,7 @@ public class Localization{
 	 * used to accurately locate the current position of the robot and move to the origin.**/
 
 	public void run(){
-		int count =0;
+		
 		angleLocalization();
 		try {
 			Thread.sleep(100);
@@ -59,65 +66,21 @@ public class Localization{
 		lightLoc();
 		leftMotor.setSpeed(100);
 		rightMotor.setSpeed(100);
-		leftMotor.rotate(-convertAngle(radius, track , 90),true);		//turns to the origin point	
-		rightMotor.rotate(convertAngle(radius, track , 90),false);
-		/*leftMotor.rotate(300,true);
-		rightMotor.rotate(300,false);
-		
-		
-		navigation.turn360(true);*/
-//		while(nextStep) {
-//			try {
-//				Thread.sleep(100);
-//			} catch (InterruptedException e1) {
-//				// TODO Auto-generated catch block
-//				e1.printStackTrace();
-//			}
-//			lightSensor.fetchSample(lightData, 0);
-//
-//			if(lightData[0]<0.30) {				//set the threshold for the line detection 
-//				Sound.beep();
-//				if(count !=4)
-//					array[count++]=Lab5.odometer.getXYT()[2];	//storing the angle it was detected at.
-//			}
-//			
-//			if(count == 4) {
-//				try {
-//					Thread.sleep(1500);
-//				} catch (InterruptedException e) {
-//				}
-//				double deltaTx=array[1]-array[3];				//delta angles at second and fourth detected lines
-//				double d= 14.0;
-//				double y = -d*Math.cos(deltaTx*Math.PI/360);	//calculation of y position
-//				double deltaTy=array[0]-array[2];				//delta angles at first and third detected lines
-//				double x = -d*Math.cos(deltaTy*Math.PI/360);	//calculation of x position
-//				double theta = Math.atan(x/y)*180/Math.PI;		
-//				double distance = Math.sqrt(x*x+y*y);
-//				double correctionAngle = array[0]-(deltaTy/2)-270;		
-////				System.out.println("x= "+x+" y= "+y+" correction= "+(correctionAngle));
-//				Sound.beep();
-//				leftMotor.rotate(-convertAngle(radius, track , theta+correctionAngle),true);		//turns to the origin point	
-//				rightMotor.rotate(convertAngle(radius, track , theta+correctionAngle),false);
-//				leftMotor.rotate(convertDistance(radius, distance),true);							//moves to the point
-//				rightMotor.rotate(convertDistance(radius, distance),false);	
-//			//	Lab5.odometer.setTheta(theta);
-//				leftMotor.rotate(-convertAngle(radius, track , theta+110),true);		//turns to the origin point	
-//				rightMotor.rotate(convertAngle(radius, track , theta+110),false);
-//			//	navigation.turnTo(0);																//turn back forward
-//				count++;
-//				gyro.reset();
-//				break;
-//				
-//			}
-			
-					
+		leftMotor.rotate(-convertAngle(radius, track , 90),true);			
+		rightMotor.rotate(convertAngle(radius, track , 90),false);		
 		}
 	
+	/**
+	 * This method is used to perform our light localization
+	 * Make the robot move forward until both sensors detect the line
+	 * turn by 90degress and does the same in that dirrection
+	 * @return void
+	 */
 	public void lightLoc() {
 		linedetect();
 		leftMotor.setSpeed(100);
 		rightMotor.setSpeed(100);
-		leftMotor.rotate(convertAngle(radius, track , 90),true);		//turns to the origin point	
+		leftMotor.rotate(convertAngle(radius, track , 90),true);		
 		rightMotor.rotate(-convertAngle(radius, track , 90),false);
 		
 		linedetect();
@@ -125,14 +88,22 @@ public class Localization{
 		
 		
 	}
+	/**This method makes the robot move forward until one sensor detect a black line
+	 * At that point, only the wheel from the other side keep turning until the it detect a line
+	 * It also include mechanisms to deal with extreme cases 
+	 * @return void
+	 */
 	public void linedetect() {
+		//make the robot move forward slowly
 		leftMotor.setSpeed(50);
 		rightMotor.setSpeed(50);
 		leftMotor.forward();
 		rightMotor.forward();
+		// wait for any ring to detect the line
 		while (true) {
 			lightSensorL.fetchSample(lightDataL, 0);
 			lightSensorR.fetchSample(lightDataR, 0);
+			// if left sensor detect the ring, only the right motor keep turning
 			if(lightDataL[0]<colorthr) {
 				Sound.beep();
 				leftMotor.setSpeed(1);
@@ -160,6 +131,7 @@ public class Localization{
 				break;
 				
 			}
+			// if right sensor detect the ring, only the left motor keep turning
 			if(lightDataR[0]<colorthr) {
 				Sound.beep();
 				rightMotor.setSpeed(1);
@@ -188,15 +160,25 @@ public class Localization{
 			}
 		
 		}
+		// move back by the offset between the wheels and sensors
 		move(-3);
 	}
+	/**
+	 * This method makes the robot move by the distance that was passed to it
+	 * @param distance to move
+	 * @return void
+	 */
 	public void move(double distance) {
 		leftMotor.setSpeed(200);
 		rightMotor.setSpeed(200);
 		leftMotor.rotate(convertDistance(radius, distance), true);
 		rightMotor.rotate(convertDistance(radius, distance), false);
 	}
-
+	/**
+	 * This method makes the robot turn (clockwise) by the angle that was passed to it
+	 * @param theta to turn
+	 * @return void
+	 */
 	private void turnBy(double theta) {
 		leftMotor.setSpeed(100);
 		rightMotor.setSpeed(100);
@@ -265,9 +247,24 @@ public class Localization{
 
 		currentPosition=Lab5.odometer.getXYT();
 	}
+	/**
+	 * This method calculate the angle that must be passed to the motor 
+	 * using the radius of the wheel and the distance we want the robot to cross
+	 * @param radius
+	 * @param distance
+	 * @return	corresponding distance
+	 */
 	private static int convertDistance(double radius, double distance) {	//converts distance to wheel rotations
 		return (int) ((180.0 * distance) / (Math.PI * radius));
 	}
+	/**
+	 * This method calculate the angle that the motor must turn 
+	 * in order for the robot to turn by an certain angle
+	 * @param radius
+	 * @param width
+	 * @param angle
+	 * @return Angle by which the wheels must turn
+	 */
 	private static int convertAngle(double radius, double width, double angle) {	//converts angle to radians for degree rotation
 		return convertDistance(radius, Math.PI * width * angle / 360.0);
 	}
